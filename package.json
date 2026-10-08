@@ -1,0 +1,19 @@
+{
+  "name": "primi-bp-living-trace",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "PRIMI × BP Security — Living Trace",
+  "scripts": {
+    "dev": "node scripts/apply-local-adjustments.mjs && vite",
+    "build": "node scripts/apply-local-adjustments.mjs && vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "postcss": "^8.5.29",
+    "postcss-selector-parser": "^7.1.6",
+    "react": "^19.2.6",
+    "react-dom": "^19.2.6",
+    "vite": "^7.1.9"
+  }
+}

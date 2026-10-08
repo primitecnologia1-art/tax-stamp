@@ -1,0 +1,688 @@
+{
+  "photos": {
+    "leaf": {
+      "desktop": {
+        "width": 1672,
+        "height": 941,
+        "variants": [
+          {
+            "width": 960,
+            "avif": "/media/optimized/leaf-611e0ac079b2-960.avif",
+            "webp": "/media/optimized/leaf-611e0ac079b2-960.webp"
+          },
+          {
+            "width": 1440,
+            "avif": "/media/optimized/leaf-611e0ac079b2-1440.avif",
+            "webp": "/media/optimized/leaf-611e0ac079b2-1440.webp"
+          },
+          {
+            "width": 1672,
+            "avif": "/media/optimized/leaf-611e0ac079b2-1672.avif",
+            "webp": "/media/optimized/leaf-611e0ac079b2-1672.webp"
+          }
+        ],
+        "src": "/media/optimized/leaf-611e0ac079b2-1672.webp",
+        "srcSet": "/media/optimized/leaf-611e0ac079b2-960.webp 960w, /media/optimized/leaf-611e0ac079b2-1440.webp 1440w, /media/optimized/leaf-611e0ac079b2-1672.webp 1672w",
+        "avifSrcSet": "/media/optimized/leaf-611e0ac079b2-960.avif 960w, /media/optimized/leaf-611e0ac079b2-1440.avif 1440w, /media/optimized/leaf-611e0ac079b2-1672.avif 1672w"
+      },
+      "mobile": {
+        "width": 529,
+        "height": 941,
+        "variants": [
+          {
+            "width": 320,
+            "avif": "/media/optimized/leaf-portrait-56b0a944e7f8-320.avif",
+            "webp": "/media/optimized/leaf-portrait-56b0a944e7f8-320.webp"
+          },
+          {
+            "width": 480,
+            "avif": "/media/optimized/leaf-portrait-56b0a944e7f8-480.avif",
+            "webp": "/media/optimized/leaf-portrait-56b0a944e7f8-480.webp"
+          },
+          {
+            "width": 529,
+            "avif": "/media/optimized/leaf-portrait-56b0a944e7f8-529.avif",
+            "webp": "/media/optimized/leaf-portrait-56b0a944e7f8-529.webp"
+          }
+        ],
+        "src": "/media/optimized/leaf-portrait-56b0a944e7f8-529.webp",
+        "srcSet": "/media/optimized/leaf-portrait-56b0a944e7f8-320.webp 320w, /media/optimized/leaf-portrait-56b0a944e7f8-480.webp 480w, /media/optimized/leaf-portrait-56b0a944e7f8-529.webp 529w",
+        "avifSrcSet": "/media/optimized/leaf-portrait-56b0a944e7f8-320.avif 320w, /media/optimized/leaf-portrait-56b0a944e7f8-480.avif 480w, /media/optimized/leaf-portrait-56b0a944e7f8-529.avif 529w"
+      },
+      "heroMobile": {
+        "width": 529,
+        "height": 941,
+        "variants": [
+          {
+            "width": 320,
+            "avif": "/media/optimized/leaf-hero-portrait-b2787f3c9cfc-320.avif",
+            "webp": "/media/optimized/leaf-hero-portrait-b2787f3c9cfc-320.webp"
+          },
+          {
+            "width": 480,
+            "avif": "/media/optimized/leaf-hero-portrait-b2787f3c9cfc-480.avif",
+            "webp": "/media/optimized/leaf-hero-portrait-b2787f3c9cfc-480.webp"
+          },
+          {
+            "width": 529,
+            "avif": "/media/optimized/leaf-hero-portrait-b2787f3c9cfc-529.avif",
+            "webp": "/media/optimized/leaf-hero-portrait-b2787f3c9cfc-529.webp"
+          }
+        ],
+        "src": "/media/optimized/leaf-hero-portrait-b2787f3c9cfc-529.webp",
+        "srcSet": "/media/optimized/leaf-hero-portrait-b2787f3c9cfc-320.webp 320w, /media/optimized/leaf-hero-portrait-b2787f3c9cfc-480.webp 480w, /media/optimized/leaf-hero-portrait-b2787f3c9cfc-529.webp 529w",
+        "avifSrcSet": "/media/optimized/leaf-hero-portrait-b2787f3c9cfc-320.avif 320w, /media/optimized/leaf-hero-portrait-b2787f3c9cfc-480.avif 480w, /media/optimized/leaf-hero-portrait-b2787f3c9cfc-529.avif 529w"
+      }
+    },
+    "dew": {
+      "desktop": {
+        "width": 1672,
+        "height": 941,
+        "variants": [
+          {
+            "width": 960,
+            "avif": "/media/optimized/dew-05ff2b685a93-960.avif",
+            "webp": "/media/optimized/dew-05ff2b685a93-960.webp"
+          },
+          {
+            "width": 1440,
+            "avif": "/media/optimized/dew-05ff2b685a93-1440.avif",
+            "webp": "/media/optimized/dew-05ff2b685a93-1440.webp"
+          },
+          {
+            "width": 1672,
+            "avif": "/media/optimized/dew-05ff2b685a93-1672.avif",
+            "webp": "/media/optimized/dew-05ff2b685a93-1672.webp"
+          }
+        ],
+        "src": "/media/optimized/dew-05ff2b685a93-1672.webp",
+        "srcSet": "/media/optimized/dew-05ff2b685a93-960.webp 960w, /media/optimized/dew-05ff2b685a93-1440.webp 1440w, /media/optimized/dew-05ff2b685a93-1672.webp 1672w",
+        "avifSrcSet": "/media/optimized/dew-05ff2b685a93-960.avif 960w, /media/optimized/dew-05ff2b685a93-1440.avif 1440w, /media/optimized/dew-05ff2b685a93-1672.avif 1672w"
+      },
+      "mobile": {
+        "width": 529,
+        "height": 941,
+        "variants": [
+          {
+            "width": 320,
+            "avif": "/media/optimized/dew-portrait-8c2bbb1d76c7-320.avif",
+            "webp": "/media/optimized/dew-portrait-8c2bbb1d76c7-320.webp"
+          },
+          {
+            "width": 480,
+            "avif": "/media/optimized/dew-portrait-8c2bbb1d76c7-480.avif",
+            "webp": "/media/optimized/dew-portrait-8c2bbb1d76c7-480.webp"
+          },
+          {
+            "width": 529,
+            "avif": "/media/optimized/dew-portrait-8c2bbb1d76c7-529.avif",
+            "webp": "/media/optimized/dew-portrait-8c2bbb1d76c7-529.webp"
+          }
+        ],
+        "src": "/media/optimized/dew-portrait-8c2bbb1d76c7-529.webp",
+        "srcSet": "/media/optimized/dew-portrait-8c2bbb1d76c7-320.webp 320w, /media/optimized/dew-portrait-8c2bbb1d76c7-480.webp 480w, /media/optimized/dew-portrait-8c2bbb1d76c7-529.webp 529w",
+        "avifSrcSet": "/media/optimized/dew-portrait-8c2bbb1d76c7-320.avif 320w, /media/optimized/dew-portrait-8c2bbb1d76c7-480.avif 480w, /media/optimized/dew-portrait-8c2bbb1d76c7-529.avif 529w"
+      },
+      "closingMobile": {
+        "width": 529,
+        "height": 941,
+        "variants": [
+          {
+            "width": 320,
+            "avif": "/media/optimized/dew-closing-portrait-b9cda708bcdc-320.avif",
+            "webp": "/media/optimized/dew-closing-portrait-b9cda708bcdc-320.webp"
+          },
+          {
+            "width": 480,
+            "avif": "/media/optimized/dew-closing-portrait-b9cda708bcdc-480.avif",
+            "webp": "/media/optimized/dew-closing-portrait-b9cda708bcdc-480.webp"
+          },
+          {
+            "width": 529,
+            "avif": "/media/optimized/dew-closing-portrait-b9cda708bcdc-529.avif",
+            "webp": "/media/optimized/dew-closing-portrait-b9cda708bcdc-529.webp"
+          }
+        ],
+        "src": "/media/optimized/dew-closing-portrait-b9cda708bcdc-529.webp",
+        "srcSet": "/media/optimized/dew-closing-portrait-b9cda708bcdc-320.webp 320w, /media/optimized/dew-closing-portrait-b9cda708bcdc-480.webp 480w, /media/optimized/dew-closing-portrait-b9cda708bcdc-529.webp 529w",
+        "avifSrcSet": "/media/optimized/dew-closing-portrait-b9cda708bcdc-320.avif 320w, /media/optimized/dew-closing-portrait-b9cda708bcdc-480.avif 480w, /media/optimized/dew-closing-portrait-b9cda708bcdc-529.avif 529w"
+      }
+    },
+    "matter": {
+      "desktop": {
+        "width": 1672,
+        "height": 941,
+        "variants": [
+          {
+            "width": 960,
+            "avif": "/media/optimized/matter-cae92e55435f-960.avif",
+            "webp": "/media/optimized/matter-cae92e55435f-960.webp"
+          },
+          {
+            "width": 1440,
+            "avif": "/media/optimized/matter-cae92e55435f-1440.avif",
+            "webp": "/media/optimized/matter-cae92e55435f-1440.webp"
+          },
+          {
+            "width": 1672,
+            "avif": "/media/optimized/matter-cae92e55435f-1672.avif",
+            "webp": "/media/optimized/matter-cae92e55435f-1672.webp"
+          }
+        ],
+        "src": "/media/optimized/matter-cae92e55435f-1672.webp",
+        "srcSet": "/media/optimized/matter-cae92e55435f-960.webp 960w, /media/optimized/matter-cae92e55435f-1440.webp 1440w, /media/optimized/matter-cae92e55435f-1672.webp 1672w",
+        "avifSrcSet": "/media/optimized/matter-cae92e55435f-960.avif 960w, /media/optimized/matter-cae92e55435f-1440.avif 1440w, /media/optimized/matter-cae92e55435f-1672.avif 1672w"
+      },
+      "mobile": {
+        "width": 529,
+        "height": 941,
+        "variants": [
+          {
+            "width": 320,
+            "avif": "/media/optimized/matter-portrait-5a6f1f5c48b3-320.avif",
+            "webp": "/media/optimized/matter-portrait-5a6f1f5c48b3-320.webp"
+          },
+          {
+            "width": 480,
+            "avif": "/media/optimized/matter-portrait-5a6f1f5c48b3-480.avif",
+            "webp": "/media/optimized/matter-portrait-5a6f1f5c48b3-480.webp"
+          },
+          {
+            "width": 529,
+            "avif": "/media/optimized/matter-portrait-5a6f1f5c48b3-529.avif",
+            "webp": "/media/optimized/matter-portrait-5a6f1f5c48b3-529.webp"
+          }
+        ],
+        "src": "/media/optimized/matter-portrait-5a6f1f5c48b3-529.webp",
+        "srcSet": "/media/optimized/matter-portrait-5a6f1f5c48b3-320.webp 320w, /media/optimized/matter-portrait-5a6f1f5c48b3-480.webp 480w, /media/optimized/matter-portrait-5a6f1f5c48b3-529.webp 529w",
+        "avifSrcSet": "/media/optimized/matter-portrait-5a6f1f5c48b3-320.avif 320w, /media/optimized/matter-portrait-5a6f1f5c48b3-480.avif 480w, /media/optimized/matter-portrait-5a6f1f5c48b3-529.avif 529w"
+      }
+    }
+  },
+  "seals": {
+    "circle": {
+      "width": 4180,
+      "height": 4180,
+      "variants": [
+        {
+          "width": 480,
+          "webp": "/media/optimized/seal-circle-bfc307f5afd2-480.webp"
+        },
+        {
+          "width": 800,
+          "webp": "/media/optimized/seal-circle-bfc307f5afd2-800.webp"
+        },
+        {
+          "width": 1200,
+          "webp": "/media/optimized/seal-circle-bfc307f5afd2-1200.webp"
+        },
+        {
+          "width": 1600,
+          "webp": "/media/optimized/seal-circle-bfc307f5afd2-1600.webp"
+        }
+      ],
+      "src": "/media/optimized/seal-circle-bfc307f5afd2-1600.webp",
+      "srcSet": "/media/optimized/seal-circle-bfc307f5afd2-480.webp 480w, /media/optimized/seal-circle-bfc307f5afd2-800.webp 800w, /media/optimized/seal-circle-bfc307f5afd2-1200.webp 1200w, /media/optimized/seal-circle-bfc307f5afd2-1600.webp 1600w",
+      "avifSrcSet": ""
+    },
+    "circle-uv": {
+      "width": 4180,
+      "height": 4180,
+      "variants": [
+        {
+          "width": 480,
+          "webp": "/media/optimized/seal-circle-uv-352884c82ce1-480.webp"
+        },
+        {
+          "width": 800,
+          "webp": "/media/optimized/seal-circle-uv-352884c82ce1-800.webp"
+        },
+        {
+          "width": 1200,
+          "webp": "/media/optimized/seal-circle-uv-352884c82ce1-1200.webp"
+        },
+        {
+          "width": 1600,
+          "webp": "/media/optimized/seal-circle-uv-352884c82ce1-1600.webp"
+        }
+      ],
+      "src": "/media/optimized/seal-circle-uv-352884c82ce1-1600.webp",
+      "srcSet": "/media/optimized/seal-circle-uv-352884c82ce1-480.webp 480w, /media/optimized/seal-circle-uv-352884c82ce1-800.webp 800w, /media/optimized/seal-circle-uv-352884c82ce1-1200.webp 1200w, /media/optimized/seal-circle-uv-352884c82ce1-1600.webp 1600w",
+      "avifSrcSet": ""
+    },
+    "rectangle": {
+      "width": 4198,
+      "height": 1244,
+      "variants": [
+        {
+          "width": 800,
+          "webp": "/media/optimized/seal-rectangle-f886ae42aad6-800.webp"
+        },
+        {
+          "width": 1200,
+          "webp": "/media/optimized/seal-rectangle-f886ae42aad6-1200.webp"
+        },
+        {
+          "width": 1600,
+          "webp": "/media/optimized/seal-rectangle-f886ae42aad6-1600.webp"
+        },
+        {
+          "width": 2400,
+          "webp": "/media/optimized/seal-rectangle-f886ae42aad6-2400.webp"
+        }
+      ],
+      "src": "/media/optimized/seal-rectangle-f886ae42aad6-2400.webp",
+      "srcSet": "/media/optimized/seal-rectangle-f886ae42aad6-800.webp 800w, /media/optimized/seal-rectangle-f886ae42aad6-1200.webp 1200w, /media/optimized/seal-rectangle-f886ae42aad6-1600.webp 1600w, /media/optimized/seal-rectangle-f886ae42aad6-2400.webp 2400w",
+      "avifSrcSet": ""
+    },
+    "rectangle-uv": {
+      "width": 4198,
+      "height": 1244,
+      "variants": [
+        {
+          "width": 800,
+          "webp": "/media/optimized/seal-rectangle-uv-7127f2eb1386-800.webp"
+        },
+        {
+          "width": 1200,
+          "webp": "/media/optimized/seal-rectangle-uv-7127f2eb1386-1200.webp"
+        },
+        {
+          "width": 1600,
+          "webp": "/media/optimized/seal-rectangle-uv-7127f2eb1386-1600.webp"
+        },
+        {
+          "width": 2400,
+          "webp": "/media/optimized/seal-rectangle-uv-7127f2eb1386-2400.webp"
+        }
+      ],
+      "src": "/media/optimized/seal-rectangle-uv-7127f2eb1386-2400.webp",
+      "srcSet": "/media/optimized/seal-rectangle-uv-7127f2eb1386-800.webp 800w, /media/optimized/seal-rectangle-uv-7127f2eb1386-1200.webp 1200w, /media/optimized/seal-rectangle-uv-7127f2eb1386-1600.webp 1600w, /media/optimized/seal-rectangle-uv-7127f2eb1386-2400.webp 2400w",
+      "avifSrcSet": ""
+    }
+  },
+  "details": {
+    "circle": [
+      {
+        "width": 719,
+        "height": 375,
+        "variants": [
+          {
+            "width": 320,
+            "webp": "/media/optimized/detail-circle-0-a0c482e7453b-320.webp"
+          },
+          {
+            "width": 719,
+            "webp": "/media/optimized/detail-circle-0-a0c482e7453b-719.webp"
+          }
+        ],
+        "src": "/media/optimized/detail-circle-0-a0c482e7453b-719.webp",
+        "srcSet": "/media/optimized/detail-circle-0-a0c482e7453b-320.webp 320w, /media/optimized/detail-circle-0-a0c482e7453b-719.webp 719w",
+        "avifSrcSet": "",
+        "source": "references/ITENS DE SEGURANÇA - CIRCLE/HOLOGRAFIA.png"
+      },
+      {
+        "width": 1029,
+        "height": 522,
+        "variants": [
+          {
+            "width": 320,
+            "webp": "/media/optimized/detail-circle-1-77f58e3a13b8-320.webp"
+          },
+          {
+            "width": 960,
+            "webp": "/media/optimized/detail-circle-1-77f58e3a13b8-960.webp"
+          },
+          {
+            "width": 1029,
+            "webp": "/media/optimized/detail-circle-1-77f58e3a13b8-1029.webp"
+          }
+        ],
+        "src": "/media/optimized/detail-circle-1-77f58e3a13b8-1029.webp",
+        "srcSet": "/media/optimized/detail-circle-1-77f58e3a13b8-320.webp 320w, /media/optimized/detail-circle-1-77f58e3a13b8-960.webp 960w, /media/optimized/detail-circle-1-77f58e3a13b8-1029.webp 1029w",
+        "avifSrcSet": "",
+        "source": "references/ITENS DE SEGURANÇA - CIRCLE/CALCOGRAFIA TALHO DOCE.png"
+      },
+      {
+        "width": 1318,
+        "height": 506,
+        "variants": [
+          {
+            "width": 320,
+            "webp": "/media/optimized/detail-circle-2-8e1e34a5d9f3-320.webp"
+          },
+          {
+            "width": 960,
+            "webp": "/media/optimized/detail-circle-2-8e1e34a5d9f3-960.webp"
+          },
+          {
+            "width": 1318,
+            "webp": "/media/optimized/detail-circle-2-8e1e34a5d9f3-1318.webp"
+          }
+        ],
+        "src": "/media/optimized/detail-circle-2-8e1e34a5d9f3-1318.webp",
+        "srcSet": "/media/optimized/detail-circle-2-8e1e34a5d9f3-320.webp 320w, /media/optimized/detail-circle-2-8e1e34a5d9f3-960.webp 960w, /media/optimized/detail-circle-2-8e1e34a5d9f3-1318.webp 1318w",
+        "avifSrcSet": "",
+        "source": "references/ITENS DE SEGURANÇA - CIRCLE/IRIS DE MAQUINA.png"
+      },
+      {
+        "width": 1296,
+        "height": 441,
+        "variants": [
+          {
+            "width": 320,
+            "webp": "/media/optimized/detail-circle-3-88c2fad2de77-320.webp"
+          },
+          {
+            "width": 960,
+            "webp": "/media/optimized/detail-circle-3-88c2fad2de77-960.webp"
+          },
+          {
+            "width": 1296,
+            "webp": "/media/optimized/detail-circle-3-88c2fad2de77-1296.webp"
+          }
+        ],
+        "src": "/media/optimized/detail-circle-3-88c2fad2de77-1296.webp",
+        "srcSet": "/media/optimized/detail-circle-3-88c2fad2de77-320.webp 320w, /media/optimized/detail-circle-3-88c2fad2de77-960.webp 960w, /media/optimized/detail-circle-3-88c2fad2de77-1296.webp 1296w",
+        "avifSrcSet": "",
+        "source": "references/ITENS DE SEGURANÇA - CIRCLE/MICROTEXTO PERSONALIZADO.png"
+      },
+      {
+        "width": 1422,
+        "height": 341,
+        "variants": [
+          {
+            "width": 320,
+            "webp": "/media/optimized/detail-circle-4-e1007fc16c5f-320.webp"
+          },
+          {
+            "width": 960,
+            "webp": "/media/optimized/detail-circle-4-e1007fc16c5f-960.webp"
+          },
+          {
+            "width": 1422,
+            "webp": "/media/optimized/detail-circle-4-e1007fc16c5f-1422.webp"
+          }
+        ],
+        "src": "/media/optimized/detail-circle-4-e1007fc16c5f-1422.webp",
+        "srcSet": "/media/optimized/detail-circle-4-e1007fc16c5f-320.webp 320w, /media/optimized/detail-circle-4-e1007fc16c5f-960.webp 960w, /media/optimized/detail-circle-4-e1007fc16c5f-1422.webp 1422w",
+        "avifSrcSet": "",
+        "source": "references/ITENS DE SEGURANÇA - CIRCLE/IMPRESSAO IRIDESCENTE OPTICAMENTE VARIAVEL.png"
+      },
+      {
+        "width": 342,
+        "height": 362,
+        "variants": [
+          {
+            "width": 320,
+            "webp": "/media/optimized/detail-circle-5-601c6e39e0ce-320.webp"
+          },
+          {
+            "width": 342,
+            "webp": "/media/optimized/detail-circle-5-601c6e39e0ce-342.webp"
+          }
+        ],
+        "src": "/media/optimized/detail-circle-5-601c6e39e0ce-342.webp",
+        "srcSet": "/media/optimized/detail-circle-5-601c6e39e0ce-320.webp 320w, /media/optimized/detail-circle-5-601c6e39e0ce-342.webp 342w",
+        "avifSrcSet": "",
+        "source": "references/ITENS DE SEGURANÇA - CIRCLE/desmetalização.png"
+      },
+      {
+        "width": 1261,
+        "height": 334,
+        "variants": [
+          {
+            "width": 320,
+            "webp": "/media/optimized/detail-circle-6-8cc2d0dd9fd6-320.webp"
+          },
+          {
+            "width": 960,
+            "webp": "/media/optimized/detail-circle-6-8cc2d0dd9fd6-960.webp"
+          },
+          {
+            "width": 1261,
+            "webp": "/media/optimized/detail-circle-6-8cc2d0dd9fd6-1261.webp"
+          }
+        ],
+        "src": "/media/optimized/detail-circle-6-8cc2d0dd9fd6-1261.webp",
+        "srcSet": "/media/optimized/detail-circle-6-8cc2d0dd9fd6-320.webp 320w, /media/optimized/detail-circle-6-8cc2d0dd9fd6-960.webp 960w, /media/optimized/detail-circle-6-8cc2d0dd9fd6-1261.webp 1261w",
+        "avifSrcSet": "",
+        "source": "references/ITENS DE SEGURANÇA - CIRCLE/NUMERACAO MICRO PERFURADA.png"
+      },
+      {
+        "width": 4180,
+        "height": 4180,
+        "variants": [
+          {
+            "width": 480,
+            "webp": "/media/optimized/seal-circle-uv-352884c82ce1-480.webp"
+          },
+          {
+            "width": 800,
+            "webp": "/media/optimized/seal-circle-uv-352884c82ce1-800.webp"
+          },
+          {
+            "width": 1200,
+            "webp": "/media/optimized/seal-circle-uv-352884c82ce1-1200.webp"
+          },
+          {
+            "width": 1600,
+            "webp": "/media/optimized/seal-circle-uv-352884c82ce1-1600.webp"
+          }
+        ],
+        "src": "/media/optimized/seal-circle-uv-352884c82ce1-1600.webp",
+        "srcSet": "/media/optimized/seal-circle-uv-352884c82ce1-480.webp 480w, /media/optimized/seal-circle-uv-352884c82ce1-800.webp 800w, /media/optimized/seal-circle-uv-352884c82ce1-1200.webp 1200w, /media/optimized/seal-circle-uv-352884c82ce1-1600.webp 1600w",
+        "avifSrcSet": "",
+        "source": "original-stamp"
+      },
+      {
+        "width": 691,
+        "height": 691,
+        "variants": [
+          {
+            "width": 320,
+            "webp": "/media/optimized/detail-circle-8-e5ec859a182c-320.webp"
+          },
+          {
+            "width": 691,
+            "webp": "/media/optimized/detail-circle-8-e5ec859a182c-691.webp"
+          }
+        ],
+        "src": "/media/optimized/detail-circle-8-e5ec859a182c-691.webp",
+        "srcSet": "/media/optimized/detail-circle-8-e5ec859a182c-320.webp 320w, /media/optimized/detail-circle-8-e5ec859a182c-691.webp 691w",
+        "avifSrcSet": "",
+        "source": "references/ITENS DE SEGURANÇA - CIRCLE/QR CODE.png"
+      }
+    ],
+    "rectangle": [
+      {
+        "width": 719,
+        "height": 375,
+        "variants": [
+          {
+            "width": 320,
+            "webp": "/media/optimized/detail-rectangle-0-a0c482e7453b-320.webp"
+          },
+          {
+            "width": 719,
+            "webp": "/media/optimized/detail-rectangle-0-a0c482e7453b-719.webp"
+          }
+        ],
+        "src": "/media/optimized/detail-rectangle-0-a0c482e7453b-719.webp",
+        "srcSet": "/media/optimized/detail-rectangle-0-a0c482e7453b-320.webp 320w, /media/optimized/detail-rectangle-0-a0c482e7453b-719.webp 719w",
+        "avifSrcSet": "",
+        "source": "references/ITENS DE SEGURANÇA - RECTANGLE/HOLOGRAFIA.png"
+      },
+      {
+        "width": 1062,
+        "height": 886,
+        "variants": [
+          {
+            "width": 320,
+            "webp": "/media/optimized/detail-rectangle-1-6db4a7190e6f-320.webp"
+          },
+          {
+            "width": 960,
+            "webp": "/media/optimized/detail-rectangle-1-6db4a7190e6f-960.webp"
+          },
+          {
+            "width": 1062,
+            "webp": "/media/optimized/detail-rectangle-1-6db4a7190e6f-1062.webp"
+          }
+        ],
+        "src": "/media/optimized/detail-rectangle-1-6db4a7190e6f-1062.webp",
+        "srcSet": "/media/optimized/detail-rectangle-1-6db4a7190e6f-320.webp 320w, /media/optimized/detail-rectangle-1-6db4a7190e6f-960.webp 960w, /media/optimized/detail-rectangle-1-6db4a7190e6f-1062.webp 1062w",
+        "avifSrcSet": "",
+        "source": "references/ITENS DE SEGURANÇA - RECTANGLE/IMPRESSAO CALCOGRAFICA TALHO DOCE.png"
+      },
+      {
+        "width": 1403,
+        "height": 376,
+        "variants": [
+          {
+            "width": 320,
+            "webp": "/media/optimized/detail-rectangle-2-f347deb587e6-320.webp"
+          },
+          {
+            "width": 960,
+            "webp": "/media/optimized/detail-rectangle-2-f347deb587e6-960.webp"
+          },
+          {
+            "width": 1403,
+            "webp": "/media/optimized/detail-rectangle-2-f347deb587e6-1403.webp"
+          }
+        ],
+        "src": "/media/optimized/detail-rectangle-2-f347deb587e6-1403.webp",
+        "srcSet": "/media/optimized/detail-rectangle-2-f347deb587e6-320.webp 320w, /media/optimized/detail-rectangle-2-f347deb587e6-960.webp 960w, /media/optimized/detail-rectangle-2-f347deb587e6-1403.webp 1403w",
+        "avifSrcSet": "",
+        "source": "references/ITENS DE SEGURANÇA - RECTANGLE/IRIS DE MAQUINA.png"
+      },
+      {
+        "width": 1296,
+        "height": 441,
+        "variants": [
+          {
+            "width": 320,
+            "webp": "/media/optimized/detail-rectangle-3-88c2fad2de77-320.webp"
+          },
+          {
+            "width": 960,
+            "webp": "/media/optimized/detail-rectangle-3-88c2fad2de77-960.webp"
+          },
+          {
+            "width": 1296,
+            "webp": "/media/optimized/detail-rectangle-3-88c2fad2de77-1296.webp"
+          }
+        ],
+        "src": "/media/optimized/detail-rectangle-3-88c2fad2de77-1296.webp",
+        "srcSet": "/media/optimized/detail-rectangle-3-88c2fad2de77-320.webp 320w, /media/optimized/detail-rectangle-3-88c2fad2de77-960.webp 960w, /media/optimized/detail-rectangle-3-88c2fad2de77-1296.webp 1296w",
+        "avifSrcSet": "",
+        "source": "references/ITENS DE SEGURANÇA - RECTANGLE/MICROTEXTO PERSONALIZADO.png"
+      },
+      {
+        "width": 1332,
+        "height": 508,
+        "variants": [
+          {
+            "width": 320,
+            "webp": "/media/optimized/detail-rectangle-4-8156a3a4b4f5-320.webp"
+          },
+          {
+            "width": 960,
+            "webp": "/media/optimized/detail-rectangle-4-8156a3a4b4f5-960.webp"
+          },
+          {
+            "width": 1332,
+            "webp": "/media/optimized/detail-rectangle-4-8156a3a4b4f5-1332.webp"
+          }
+        ],
+        "src": "/media/optimized/detail-rectangle-4-8156a3a4b4f5-1332.webp",
+        "srcSet": "/media/optimized/detail-rectangle-4-8156a3a4b4f5-320.webp 320w, /media/optimized/detail-rectangle-4-8156a3a4b4f5-960.webp 960w, /media/optimized/detail-rectangle-4-8156a3a4b4f5-1332.webp 1332w",
+        "avifSrcSet": "",
+        "source": "references/ITENS DE SEGURANÇA - RECTANGLE/IMPRESSAO IRIDESCENTE.png"
+      },
+      {
+        "width": 895,
+        "height": 855,
+        "variants": [
+          {
+            "width": 320,
+            "webp": "/media/optimized/detail-rectangle-5-f7280f10c3ab-320.webp"
+          },
+          {
+            "width": 895,
+            "webp": "/media/optimized/detail-rectangle-5-f7280f10c3ab-895.webp"
+          }
+        ],
+        "src": "/media/optimized/detail-rectangle-5-f7280f10c3ab-895.webp",
+        "srcSet": "/media/optimized/detail-rectangle-5-f7280f10c3ab-320.webp 320w, /media/optimized/detail-rectangle-5-f7280f10c3ab-895.webp 895w",
+        "avifSrcSet": "",
+        "source": "references/ITENS DE SEGURANÇA - RECTANGLE/DESMETALIZAÇÃO SOBE TARJA HOLOGRAFICA COM NANO NUMERAÇÃO.png"
+      },
+      {
+        "width": 191,
+        "height": 873,
+        "variants": [
+          {
+            "width": 191,
+            "webp": "/media/optimized/detail-rectangle-6-d0951ebec576-191.webp"
+          }
+        ],
+        "src": "/media/optimized/detail-rectangle-6-d0951ebec576-191.webp",
+        "srcSet": "/media/optimized/detail-rectangle-6-d0951ebec576-191.webp 191w",
+        "avifSrcSet": "",
+        "source": "references/ITENS DE SEGURANÇA - RECTANGLE/NUMERACAO MICRO PERFURADA.png"
+      },
+      {
+        "width": 4198,
+        "height": 1244,
+        "variants": [
+          {
+            "width": 800,
+            "webp": "/media/optimized/seal-rectangle-uv-7127f2eb1386-800.webp"
+          },
+          {
+            "width": 1200,
+            "webp": "/media/optimized/seal-rectangle-uv-7127f2eb1386-1200.webp"
+          },
+          {
+            "width": 1600,
+            "webp": "/media/optimized/seal-rectangle-uv-7127f2eb1386-1600.webp"
+          },
+          {
+            "width": 2400,
+            "webp": "/media/optimized/seal-rectangle-uv-7127f2eb1386-2400.webp"
+          }
+        ],
+        "src": "/media/optimized/seal-rectangle-uv-7127f2eb1386-2400.webp",
+        "srcSet": "/media/optimized/seal-rectangle-uv-7127f2eb1386-800.webp 800w, /media/optimized/seal-rectangle-uv-7127f2eb1386-1200.webp 1200w, /media/optimized/seal-rectangle-uv-7127f2eb1386-1600.webp 1600w, /media/optimized/seal-rectangle-uv-7127f2eb1386-2400.webp 2400w",
+        "avifSrcSet": "",
+        "source": "original-stamp"
+      },
+      {
+        "width": 691,
+        "height": 691,
+        "variants": [
+          {
+            "width": 320,
+            "webp": "/media/optimized/detail-rectangle-8-e5ec859a182c-320.webp"
+          },
+          {
+            "width": 691,
+            "webp": "/media/optimized/detail-rectangle-8-e5ec859a182c-691.webp"
+          }
+        ],
+        "src": "/media/optimized/detail-rectangle-8-e5ec859a182c-691.webp",
+        "srcSet": "/media/optimized/detail-rectangle-8-e5ec859a182c-320.webp 320w, /media/optimized/detail-rectangle-8-e5ec859a182c-691.webp 691w",
+        "avifSrcSet": "",
+        "source": "references/ITENS DE SEGURANÇA - RECTANGLE/QR CODE.png"
+      }
+    ]
+  },
+  "film": {
+    "desktop": "/media/optimized/film-final-e2e05377611b-1920.mp4",
+    "mobile": "/media/optimized/film-final-e2e05377611b-960.mp4",
+    "poster": "/media/optimized/leaf-611e0ac079b2-960.webp",
+    "duration": "01:02"
+  }
+}

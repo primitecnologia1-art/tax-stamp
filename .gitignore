@@ -1,0 +1,57 @@
+node_modules/
+dist/
+.vite/
+.vercel/
+*.log
+
+# Saídas reproduzíveis do pipeline local/Vercel.
+src/generated/
+
+# Experimentos e extrações que não fazem parte do site atual.
+assets/
+scripts/extract-folder-images.py
+scripts/normalize-layers.mjs
+scripts/prepare-media.mjs
+references/
+
+# O diretório público contém o arquivo histórico completo. Versione apenas o
+# conjunto efetivamente servido ou usado como fonte pelo build.
+public/media/*
+!public/media/optimized/
+public/media/optimized/folder-*
+public/media/optimized/*-mobile-*
+public/media/optimized/dew-closing-portrait-0b41251e2bea-*
+public/media/optimized/dew-portrait-9f05785cbaa6-*
+public/media/optimized/leaf-hero-portrait-55e5c9768313-*
+public/media/optimized/leaf-portrait-e0675fdd9ed6-*
+public/media/optimized/matter-portrait-5237e761d331-*
+!public/media/layers-registered/
+public/media/layers-registered/*
+!public/media/layers-registered/*-*.webp
+!public/media/bp-logo.webp
+!public/media/primi-logo.webp
+!public/media/br.svg
+!public/media/us.svg
+!public/media/brochure-pt.pdf
+!public/media/brochure-en.pdf
+
+public/_next/*
+!public/_next/static/
+public/_next/static/*
+!public/_next/static/chunks/
+!public/_next/static/css/
+!public/_next/static/media/
+public/_next/static/chunks/*
+!public/_next/static/chunks/Experience-CUGgApuT.js
+!public/_next/static/chunks/framework-D_rUT4EX.js
+!public/_next/static/chunks/rolldown-runtime-C60lm6uB.js
+public/_next/static/css/*
+!public/_next/static/css/index.BLqIrIxb.css
+public/_next/static/media/*
+!public/_next/static/media/manrope-latin-wght-normal.DHIcAJRg.woff2
+!public/_next/static/media/manrope-latin-ext-wght-normal.Ch3YOpNY.woff2
+!public/_next/static/media/manrope-cyrillic-wght-normal.Dvxsihut.woff2
+!public/_next/static/media/manrope-greek-wght-normal.DL7QRZyv.woff2
+!public/_next/static/media/manrope-vietnamese-wght-normal.usUDDRr7.woff2
+!public/_next/static/media/instrument-serif-latin-400-italic.DKMiL14s.woff2
+!public/_next/static/media/instrument-serif-latin-400-italic.u__WvvIK.woff
