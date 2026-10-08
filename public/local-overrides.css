@@ -45,6 +45,13 @@
 .optical-contour { position: absolute; z-index: 4; left: 70%; top: 46%; transform: translate(-50%, -50%); border-radius: 50%; border: 1px solid #e7eedba1; box-shadow: 0 0 32px #edf3da33, inset 0 0 32px #edf3da26; opacity: 0; pointer-events: none; }
 .format-art { perspective: 1000px; transform-style: preserve-3d; }
 .light-stage { transform-origin: 50% 50%; }
+.light-window {
+  touch-action: none;
+  overscroll-behavior: contain;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
 
 /* Guatemala's three-part work surface: stamp | circular detail + copy | index. */
 .security-atlas { background: #fff; color: #1c281e; --foreground: #1c281e; --accent: #3d642d; --muted-foreground: #596a57; }
