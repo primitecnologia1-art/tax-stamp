@@ -21,7 +21,7 @@ function Qm({ lang }) {
 
   (0, i.useEffect)(() => {
     const media = Si.matchMedia();
-    media.add({ mobile: '(max-width: 767px)', compact: '(max-width: 767px) and (max-height: 740px)', shortDesktop: '(min-width: 768px) and (max-height: 800px)', motion: '(prefers-reduced-motion: no-preference)', reduced: '(prefers-reduced-motion: reduce)' }, context => {
+    media.add({ always: 'all', mobile: '(max-width: 767px)', compact: '(max-width: 767px) and (max-height: 740px)', shortDesktop: '(min-width: 768px) and (max-height: 800px)' }, context => {
       const mobile = context.conditions.mobile;
       const planes = root.current.querySelectorAll('.seal-plane');
       const paint = value => {
@@ -35,13 +35,11 @@ function Qm({ lang }) {
         }));
         root.current.style.setProperty('--spread', String(value));
       };
-      const proxy = { value: context.conditions.reduced ? 1 : 0 };
+      const proxy = { value: 0 };
       paint(proxy.value);
-      if (!context.conditions.reduced) {
-        Si.to(proxy, { value: 1, ease: 'none', onUpdate: () => paint(proxy.value), scrollTrigger: {
-          trigger: root.current, start: () => 'top -' + window.innerHeight * .65, end: 'bottom bottom', scrub: .55, invalidateOnRefresh: true,
-        } });
-      }
+      Si.to(proxy, { value: 1, ease: 'none', onUpdate: () => paint(proxy.value), scrollTrigger: {
+        trigger: root.current, start: () => 'top -' + window.innerHeight * .65, end: 'bottom bottom', scrub: .55, invalidateOnRefresh: true,
+      } });
     }, root);
     return () => media.revert();
   }, []);
@@ -55,7 +53,7 @@ function Qm({ lang }) {
         className: 'seal-plane' + (index === 7 ? ' invisible-plane' : '') + (index === 6 || index === 4 ? ' white-ink-plane' : ''),
         'data-layer-index': index, style: { zIndex: index + 1 },
       }, el('span', { className: 'plane-surface' },
-        el('img', { ...images[index], alt: layer[lang], loading: 'lazy', decoding: 'async', draggable: false }),
+        el('img', { ...images[index], sizes: rectangular ? '(max-width: 767px) 76vw, (max-width: 1100px) 42vw, 580px' : '(max-width: 767px) 42vw, (max-width: 1100px) 30vw, 410px', alt: layer[lang], loading: 'lazy', decoding: 'async', draggable: false }),
         index === 7 ? el('span', { className: 'uv-ray', 'aria-hidden': true }) : null,
       ))),
     );

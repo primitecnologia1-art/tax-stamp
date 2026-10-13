@@ -95,7 +95,16 @@ for (const format of ['circle', 'rectangle']) {
     const output = path.join(outputDirectory, filename);
     // The whole registered canvas is encoded: no crop, resize or reposition.
     if (!await exists(output)) await sharp(layer.input).webp({ quality: 92, alphaQuality: 100, effort: 5 }).toFile(output);
-    const asset = { src: `/media/${directory}/${filename}`, width: layer.width, height: layer.height };
+    // Scale the WHOLE canvas uniformly: preserve every layer's registration.
+    const candidates = format === 'circle' ? [320, 480, layer.width] : [640, 960, layer.width];
+    const responsive = [];
+    for (const width of [...new Set(candidates.map(value => Math.min(value, layer.width)))]) {
+      const smallName = width === layer.width ? filename : filename.replace('.webp', `-${width}.webp`);
+      const smallOutput = path.join(outputDirectory, smallName);
+      if (!await exists(smallOutput)) await sharp(layer.input).resize({ width }).webp({ quality: 92, alphaQuality: 100, effort: 5 }).toFile(smallOutput);
+      responsive.push(`/media/${directory}/${smallName} ${width}w`);
+    }
+    const asset = { src: `/media/${directory}/${filename}`, srcSet: responsive.join(', '), width: layer.width, height: layer.height };
     if (previousLayers[format][index]?.src !== asset.src) changed.push(`references/${format === 'circle' ? 'EXPLOSION' : 'EXPLOSION-RECTANGLE'}/${layer.file}`);
     layerImages[format].push(asset);
   }

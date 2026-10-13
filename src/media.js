@@ -31,7 +31,7 @@ function LTWarmImage(asset, sizes = '(max-width: 767px) 90vw, 650px') {
   image.sizes = sizes;
   image.srcset = asset.srcSet;
   image.src = asset.src;
-  image.decode().catch(() => LT_WARMED.delete(asset.src));
+  if (typeof image.decode === 'function') image.decode().catch(() => LT_WARMED.delete(asset.src));
 }
 
 // Warm the next chapter before it is visible, including fast anchor navigation.
@@ -40,7 +40,7 @@ function LTPrepareMedia() {
   const warm = section => {
     section?.querySelectorAll('img[loading="lazy"]').forEach(image => {
       image.loading = 'eager';
-      image.decode().catch(() => {});
+      if (typeof image.decode === 'function') image.decode().catch(() => {});
     });
     if (section?.id === 'luz' || section?.classList.contains('security-atlas')) {
       // Both formats and UV are ready before the visitor changes a tab.

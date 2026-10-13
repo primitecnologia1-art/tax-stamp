@@ -1,7 +1,6 @@
 // Scroll-driven optics; no wheel interception, scroll locks, or React frame updates.
 function LT_motion(conditions = {}) {
   const mobile = !conditions.desktop;
-  if (conditions.reduced) return;
   const origin = document.querySelector('.origin-optical');
   if (!origin) return;
   const aperture = { radius: 0 };
@@ -11,6 +10,7 @@ function LT_motion(conditions = {}) {
   const layersScene = document.querySelector('.layers-scene');
   const formatScene = document.querySelector('.formats-scene');
   const formatStage = document.querySelector('.formats-sticky');
+  const supportsPath = typeof CSS !== 'undefined' && CSS.supports('clip-path', "path('M 0 0 H 1 V 1 H 0 Z')");
   const revealLayers = progress => {
     // Fine, staggered print lines resolve across one shared field. No aperture
     // is tied to a stamp shape: the same optical process joins both formats.
@@ -26,7 +26,11 @@ function LT_motion(conditions = {}) {
       if (half > 0) paths.push(`M 0 ${center - half} H ${width} V ${center + half} H 0 Z`);
     }
     const path = paths.join(' ') || 'M 0 0 H 0 V 0 Z';
-    layers.style.clipPath = progress >= .999 ? 'none' : `path('${path}')`;
+    const clip = progress >= .999 ? 'none' : `path('${path}')`;
+    // Use the optical line reveal where supported, a registered inset otherwise.
+    const mask = supportsPath ? clip : `inset(${(1 - progress) * 100}% 0 0 0)`;
+    layers.style.clipPath = mask;
+    layers.style.webkitClipPath = mask;
     layers.style.pointerEvents = progress < .7 ? 'none' : '';
     // Keep the outgoing stamps registered while their sticky section reaches
     // its boundary; the incoming construction remains at the same coordinates.
@@ -100,11 +104,21 @@ function LT_motion(conditions = {}) {
     invalidateOnRefresh: true,
   });
 
-  Si.fromTo('.hero-media', { scale: 1.03, rotation: 0 }, { scale: 1.33, rotation: -2, ease: 'none', scrollTrigger: { trigger: '.hero', start: 'top top', end: 'bottom top', scrub: .7 } });
+  // The opening image is painted by CSS, not repainted during hydration.
+  // Begin its parallax only when scrolling actually changes its pose.
+  const heroMedia = document.querySelector('.hero-media');
+  let heroMoved = false;
+  const heroPose = trigger => {
+    if (!trigger.progress && !heroMoved) return;
+    if (!heroMoved) heroMedia.style.willChange = 'transform';
+    heroMoved = true;
+    Si.set(heroMedia, { scale: 1.03 + trigger.progress * .3, rotation: -trigger.progress * 2 });
+  };
+  Y.create({ trigger: '.hero', start: 'top top', end: 'bottom top', onUpdate: heroPose, onRefresh: heroPose });
   Si.to('.hero-content', { opacity: 0, y: -35, ease: 'none', scrollTrigger: { trigger: '.hero', start: '45% top', end: 'bottom top', scrub: .5 } });
   Si.fromTo('.light-stage', { clipPath: 'circle(8% at 50% 50%)', scale: .9 }, { clipPath: 'circle(145% at 50% 50%)', scale: 1, ease: 'power2.inOut', scrollTrigger: { trigger: '#luz', start: 'top 80%', end: 'top 12%', scrub: .7 } });
   Si.fromTo('.atlas-seal', { clipPath: 'circle(0% at 50% 50%)' }, { clipPath: 'circle(145% at 50% 50%)', ease: 'power2.inOut', scrollTrigger: { trigger: '.security-atlas', start: 'top 85%', end: 'top 15%', scrub: .55 } });
-  Si.fromTo('.trace-heading', { opacity: .3, y: 45 }, { opacity: 1, y: 0, scrollTrigger: { trigger: '#rastro', start: 'top 85%', end: 'top 20%', scrub: .6 } });
-  Si.fromTo('.trace-steps li', { opacity: .18, y: 30 }, { opacity: 1, y: 0, stagger: .22, ease: 'none', scrollTrigger: { trigger: '.trace-steps', start: 'top 88%', end: 'top 38%', scrub: .6 } });
+  Si.fromTo('.trace-heading', { y: 45 }, { y: 0, scrollTrigger: { trigger: '#rastro', start: 'top 85%', end: 'top 20%', scrub: .6 } });
+  Si.fromTo('.trace-steps li', { y: 30 }, { y: 0, stagger: .22, ease: 'none', scrollTrigger: { trigger: '.trace-steps', start: 'top 88%', end: 'top 38%', scrub: .6 } });
   Si.fromTo('.closing picture', { clipPath: 'circle(12% at 75% 45%)', scale: 1.25 }, { clipPath: 'circle(145% at 75% 45%)', scale: 1, ease: 'power2.inOut', scrollTrigger: { trigger: '.closing', start: 'top 85%', end: 'top 10%', scrub: .7 } });
 }

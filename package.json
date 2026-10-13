@@ -7,6 +7,8 @@
   "scripts": {
     "dev": "node scripts/apply-local-adjustments.mjs && vite",
     "build": "node scripts/apply-local-adjustments.mjs && vite build",
+    "build:portable": "node scripts/apply-local-adjustments.mjs && vite build --base=./",
+    "package": "npm run build:portable && node scripts/package-site.mjs",
     "preview": "vite preview"
   },
   "devDependencies": {

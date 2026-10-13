@@ -61,7 +61,9 @@
   .film-player .film-video { flex: 1 1 auto; max-width: 100%; max-height: 100%; }
 }
 .film-loading { position: absolute; inset: 40% 0 auto; width: max-content; margin: auto; padding: 10px 16px; border-radius: 999px; background: #07140de6; color: #f3f5ed; font-size: 13px; pointer-events: none; }
+.hero-media { transform: scale(1.03); will-change: auto; }
 .hero-media img { object-position: 61% center; }
+.trace-record > p { color: #5f6c55; }
 
 /* Optical continuity: an aperture passes through nature into the stamp canvas. */
 .origin-optical { height: 380svh; position: relative; z-index: 1; }
@@ -126,7 +128,7 @@
 .atlas-index { padding-left: 22px; border-left: 1px solid #213f2326; }
 .atlas-index-title { color: #607252; font-size: .6875rem; letter-spacing: .09em; text-transform: uppercase; margin: 0 0 9px; }
 .atlas-item { display: flex; align-items: center; gap: 12px; padding: 11px 0; min-height: 44px; width: 100%; background: transparent; border: 0; border-bottom: 1px solid #29432226; color: #5c6d51; text-align: left; font-size: .8125rem; line-height: 1.4; cursor: pointer; }
-.atlas-item > span:first-child { font-size: .625rem; color: #7c8f6c; }
+.atlas-item > span:first-child { font-size: .625rem; color: #5d7150; }
 .atlas-item > span:last-child { margin-left: auto; }
 .atlas-item.is-active { color: #23471e; font-weight: 600; }
 .atlas-dialog-content { display: grid; grid-template-columns: 1.15fr 1fr; gap: 30px; align-items: center; padding: 24px 0; }
@@ -202,18 +204,6 @@
   .mobile-chapters { gap: 10px; padding-inline: 14px; justify-content: space-between; }
   .mobile-chapters a { font-size: .625rem; gap: 4px; padding: 8px 2px; flex-shrink: 0; }
 }
-@media (prefers-reduced-motion: reduce) {
-  .origin-optical { height: auto; }
-  .origin-optical .origin-leaf { display: none; }
-  .origin-optical .origin-matter { clip-path: none !important; }
-  .optical-contour { display: none; }
-  .layers-v2 { height: auto; margin-top: 0; scroll-margin-top: 0; }
-  .layers-v2 .layers-sticky { position: relative; min-height: 780px; clip-path: none !important; pointer-events: auto !important; }
-  .layers-v2 .seal-plane { transition: none; }
-  .layers-v2 .invisible-plane img { mask-image: none; animation: none; }
-  .layers-v2 .invisible-plane .plane-surface { opacity: 1; }
-  .layers-v2 .uv-ray { display: none; }
-}
 
 @media (max-width: 767px) {
   :root {
@@ -262,9 +252,6 @@
   .layers-dual .explosion-rectangle { width: 70vw; top: 73%; }
   .dual-layer-caption { bottom: 8px; font-size: .6875rem; }
 }
-@media (prefers-reduced-motion: reduce) {
-  .layers-dual .layers-sticky { min-height: 780px; }
-}
 
 /* Registered optical handoff: two formats become their layered construction. */
 .origin-optical { height: 300svh; }
@@ -300,10 +287,4 @@
   .formats-sticky { min-height: 0; }
   .format-circle .format-art { width: 135px; }
   .format-rectangle .format-art { width: 70vw; }
-}
-@media (prefers-reduced-motion: reduce) {
-  .origin-optical, .formats-scene { height: auto; }
-  .formats-sticky { position: relative; min-height: 780px; }
-  .layers-dual { margin-top: 0; }
-  .format-art::after, .formats-sticky::after { display: none; }
 }

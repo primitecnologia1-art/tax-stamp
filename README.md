@@ -28,6 +28,14 @@ npm run preview
 
 Importe esta pasta como um novo projeto no Vercel. A configuração em `vercel.json` executa `npm run build` e publica a pasta `dist`.
 
+## Pacote para hospedagem própria
+
+Execute `npm run package` no Windows. O ZIP e as instruções ficam em `entrega/`.
+Envie o conteúdo do ZIP diretamente à pasta escolhida no servidor; não é necessário npm na hospedagem.
+Os caminhos são relativos: o mesmo pacote funciona em qualquer domínio ou subpasta.
+O `.htaccess` incluído configura compressão e cache em Apache/LiteSpeed, sem impor uma URL.
+O build usa uma lista explícita das mídias atuais: referências e arquivos históricos nunca entram no pacote.
+
 ## Estrutura
 
 - `index.html`: documento atual da experiência.
@@ -43,6 +51,11 @@ Importe esta pasta como um novo projeto no Vercel. A configuração em `vercel.j
 - `src/media-data.js` e `src/layers-data.js`: manifestos das mídias finais publicadas.
 
 Todos os próximos ajustes devem ser feitos nesta pasta.
+
+As animações narrativas são sempre controladas pelo scroll, sem botão de movimento
+e sem serem desativadas pela preferência “Reduzir Movimento” do aparelho, conforme
+a decisão de apresentação deste projeto. O build inclui alternativas de altura
+e máscaras para Safari/WebViews, e APIs de desempenho opcionais não bloqueiam a inicialização.
 
 ## Mídias publicadas
 

@@ -55,23 +55,23 @@
         "variants": [
           {
             "width": 320,
-            "avif": "/media/optimized/leaf-hero-portrait-b2787f3c9cfc-320.avif",
+            "avif": "/media/optimized/leaf-hero-web-cd241070614e-320.avif",
             "webp": "/media/optimized/leaf-hero-portrait-b2787f3c9cfc-320.webp"
           },
           {
             "width": 480,
-            "avif": "/media/optimized/leaf-hero-portrait-b2787f3c9cfc-480.avif",
+            "avif": "/media/optimized/leaf-hero-web-cd241070614e-480.avif",
             "webp": "/media/optimized/leaf-hero-portrait-b2787f3c9cfc-480.webp"
           },
           {
             "width": 529,
-            "avif": "/media/optimized/leaf-hero-portrait-b2787f3c9cfc-529.avif",
+            "avif": "/media/optimized/leaf-hero-web-cd241070614e-529.avif",
             "webp": "/media/optimized/leaf-hero-portrait-b2787f3c9cfc-529.webp"
           }
         ],
         "src": "/media/optimized/leaf-hero-portrait-b2787f3c9cfc-529.webp",
         "srcSet": "/media/optimized/leaf-hero-portrait-b2787f3c9cfc-320.webp 320w, /media/optimized/leaf-hero-portrait-b2787f3c9cfc-480.webp 480w, /media/optimized/leaf-hero-portrait-b2787f3c9cfc-529.webp 529w",
-        "avifSrcSet": "/media/optimized/leaf-hero-portrait-b2787f3c9cfc-320.avif 320w, /media/optimized/leaf-hero-portrait-b2787f3c9cfc-480.avif 480w, /media/optimized/leaf-hero-portrait-b2787f3c9cfc-529.avif 529w"
+        "avifSrcSet": "/media/optimized/leaf-hero-web-cd241070614e-320.avif 320w, /media/optimized/leaf-hero-web-cd241070614e-480.avif 480w, /media/optimized/leaf-hero-web-cd241070614e-529.avif 529w"
       }
     },
     "dew": {
@@ -724,9 +724,13 @@
     ]
   },
   "film": {
-    "desktop": "/media/optimized/film-final-e2e05377611b-1920.mp4",
-    "mobile": "/media/optimized/film-final-e2e05377611b-960.mp4",
+    "desktop": "/media/optimized/film-web-864a06aa8c82-1920.mp4",
+    "mobile": "/media/optimized/film-web-9e4fae092db7-960.mp4",
     "poster": "/media/optimized/leaf-611e0ac079b2-960.webp",
     "duration": "01:02"
+  },
+  "logos": {
+    "primi": "/media/optimized/primi-logo-8e3b098b2927.webp",
+    "bp": "/media/optimized/bp-logo-13d4ac9dc889.webp"
   }
 }

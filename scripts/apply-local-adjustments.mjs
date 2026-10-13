@@ -3,6 +3,7 @@ import { fileURLToPath } from "node:url";
 import path from "node:path";
 import vm from "node:vm";
 import * as React from 'react';
+import * as ReactDOM from 'react-dom';
 import * as jsxRuntime from 'react/jsx-runtime';
 import { renderToString } from 'react-dom/server';
 import { prepareStyles } from './prepare-styles.mjs';
@@ -19,6 +20,17 @@ const bundlePath = path.join(
 const htmlPath = path.join(projectRoot, "index.html");
 
 let bundle = await readFile(bundlePath, "utf8");
+
+// The UV selector controls the same live panel for both stamp formats.
+const uvStart = bundle.indexOf('function ih(');
+const uvEnd = bundle.indexOf('function ', uvStart + 12);
+if (uvStart >= 0 && uvEnd > uvStart) {
+  const uvSource = bundle.slice(uvStart, uvEnd)
+    .replaceAll('(nh,{value:`circle`,children:', '(nh,{value:`circle`,"aria-controls":`uv-format-panel`,children:')
+    .replaceAll('(nh,{value:`rectangle`,children:', '(nh,{value:`rectangle`,"aria-controls":`uv-format-panel`,children:')
+    .replace('className:`light-stage`,children:', 'className:`light-stage`,id:`uv-format-panel`,role:`tabpanel`,"aria-label":n===`circle`?t.circular:t.rectangular,children:');
+  bundle = bundle.slice(0, uvStart) + uvSource + bundle.slice(uvEnd);
+}
 
 // Keep editable component sources independent from the archived runtime.
 async function injectComponent(label, file, startToken, endToken) {
@@ -104,6 +116,13 @@ bundle = bundle
   .replace('e===`pt`?`pt-BR`:`en-US`', 'e===`pt`?`pt-BR`:`en-GB`');
 // Only the local React application is needed; no archived server/router bootstrap.
 const applicationStart = bundle.indexOf('function lh(');
+// User-requested policy: chapter animations are always scroll-driven, with no
+// movement toggle and no device preference that silently removes the scenes.
+bundle = bundle
+  .replace('motion:`(prefers-reduced-motion: no-preference)`,desktop:`(min-width: 768px)`,reduced:`(prefers-reduced-motion: reduce)`', 'always:`all`,desktop:`(min-width: 768px)`')
+  .replace('if(Y.create({trigger:d.current', 'Y.create({trigger:d.current')
+  .replace(',e.conditions?.reduced)return;LT_motion(e.conditions);', ';LT_motion(e.conditions);')
+  .replace(',!1)return;LT_motion(e.conditions);', ';LT_motion(e.conditions);');
 if (!bundle.slice(applicationStart).includes('useEffect)(LTPrepareMedia')) {
   bundle = bundle.slice(0, applicationStart) + bundle.slice(applicationStart).replace('return(0,i.useEffect)', '(0,i.useEffect)(LTPrepareMedia,[]);return(0,i.useEffect)');
 }
@@ -134,6 +153,9 @@ bundle = bundle.replace(
 );
 
 bundle = bundle.replace('`Rastro`', '`Rastreabilidade`').replace('`Trace`', '`Traceability`');
+bundle = bundle
+  .replace('(rh,{alt:`${m.sealImage} — ${m.circular}`})', '(rh,{sizes:`(max-width: 767px) 42vw, 340px`,alt:`${m.sealImage} — ${m.circular}`})')
+  .replace('(rh,{format:`rectangle`,alt:`${m.sealImage} — ${m.rectangular}`})', '(rh,{format:`rectangle`,sizes:`(max-width: 767px) 76vw, 580px`,alt:`${m.sealImage} — ${m.rectangular}`})');
 bundle = bundle.replace('nav:[`Origem`,`Camadas`,`Luz`,`Rastro`]', 'nav:[`Origem`,`Camadas`,`Luz`,`Rastreabilidade`]');
 
 // Original photography replaces all decorative video frames and the hero loop.
@@ -341,6 +363,24 @@ await mkdir(runtimeDirectory, { recursive: true });
 for (const name of ['Experience-CUGgApuT.js', 'framework-D_rUT4EX.js', 'rolldown-runtime-C60lm6uB.js']) {
   await copyFile(path.join(projectRoot, 'public/_next/static/chunks', name), path.join(runtimeDirectory, name));
 }
+
+// Render the complete application with its actual tab/dialog components.
+// Partial stubs created hydration mismatches and rebuilt the page at startup.
+const renderContext = {
+  React, e: module => ({ ...module, default: module }),
+  t: () => React, n: () => ReactDOM, r: () => jsxRuntime,
+  Si: { registerPlugin() {} }, Y: {},
+  window: { matchMedia: () => ({ matches: false }) }, navigator: {},
+  console, setTimeout, clearTimeout,
+};
+vm.createContext(renderContext);
+const renderSource = 'var i=React;' + bundle.slice(bundle.indexOf('var qs='))
+  .replace(/export\{lh as default\};?\s*$/, 'this.App=lh;');
+vm.runInContext(renderSource, renderContext);
+const completeHtml = renderToString(element(renderContext.App))
+  .replace(/<link\b[^>]*rel="preload"[^>]*>/g, '');
+html = html.replace(/<body\b[^>]*>[\s\S]*<\/body>/,
+  '<body><div id="app">' + completeHtml + '</div><script type="module" fetchpriority="low" src="/src/main.js"></script></body>');
 
 // Deliver the complete, compact stylesheet in the initial response: no extra
 // blocking CSS round trips and no flash of unstyled content on a slow connection.

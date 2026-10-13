@@ -10,7 +10,7 @@ function sh({ footer: e = false }) {
         target: `_blank`,
         rel: `noopener noreferrer`,
         "aria-label": `Visitar o site da PRIMI`,
-        children: (0, X.jsx)(`img`, { className: `primi-logo`, src: `/media/primi-logo.webp`, width: `560`, height: `153`, alt: `PRIMI` }),
+        children: (0, X.jsx)(`img`, { className: `primi-logo`, src: LT_ASSETS.logos.primi, width: `560`, height: `153`, alt: `PRIMI` }),
       }),
       (0, X.jsx)(`span`, { className: `brand-divider`, "aria-hidden": `true` }),
       (0, X.jsx)(`a`, {
@@ -19,7 +19,7 @@ function sh({ footer: e = false }) {
         target: `_blank`,
         rel: `noopener noreferrer`,
         "aria-label": `Visitar o site da BP Security`,
-        children: (0, X.jsx)(`img`, { className: `bp-logo`, src: `/media/bp-logo.webp`, width: `700`, height: `89`, alt: `BP Security` }),
+        children: (0, X.jsx)(`img`, { className: `bp-logo`, src: LT_ASSETS.logos.bp, width: `700`, height: `89`, alt: `BP Security` }),
       }),
     ],
   });
