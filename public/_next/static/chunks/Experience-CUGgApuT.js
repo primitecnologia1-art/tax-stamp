@@ -92,14 +92,7 @@ const LT_LAYERS = [
 
 function Qm({ lang }) {
   const en = lang === 'en';
-  const [selected, setSelected] = (0, i.useState)(null);
   const root = (0, i.useRef)(null);
-  const selectedRef = (0, i.useRef)(null);
-  const scrollAnchor = (0, i.useRef)(0);
-  const scrollIntent = (0, i.useRef)(false);
-  const spread = (0, i.useRef)(0);
-  const heldPose = (0, i.useRef)(0);
-  const paint = (0, i.useRef)(null);
   const el = (tag, props = {}, ...children) => {
     const { key, ...attributes } = props;
     return (children.length > 1 ? X.jsxs : X.jsx)(tag, { ...attributes, ...(children.length ? { children: children.length === 1 ? children[0] : children } : {}) }, key);
@@ -110,12 +103,11 @@ function Qm({ lang }) {
     media.add({ mobile: '(max-width: 767px)', compact: '(max-width: 767px) and (max-height: 740px)', shortDesktop: '(min-width: 768px) and (max-height: 800px)', motion: '(prefers-reduced-motion: no-preference)', reduced: '(prefers-reduced-motion: reduce)' }, context => {
       const mobile = context.conditions.mobile;
       const planes = root.current.querySelectorAll('.seal-plane');
-      paint.current = value => {
-        spread.current = value;
-        const pose = selectedRef.current === null ? value : heldPose.current;
-        planes.forEach((plane, index) => Si.set(plane, {
-          y: (3.5 - index) * (mobile ? (context.conditions.compact ? 15 : 25) : (context.conditions.shortDesktop ? 45 : 57)) * pose,
-          x: (3.5 - index) * (mobile ? 3 : 9) * pose,
+      const paint = value => {
+        const pose = value;
+        planes.forEach(plane => Si.set(plane, {
+          y: (3.5 - Number(plane.dataset.layerIndex)) * (mobile ? (context.conditions.compact ? 13 : 18) : (context.conditions.shortDesktop ? 32 : 40)) * pose,
+          x: (3.5 - Number(plane.dataset.layerIndex)) * (mobile ? 2 : 7) * pose,
           rotationX: 70 * pose,
           rotationZ: -12 - 13 * pose,
           scale: 1 - pose * .04,
@@ -123,79 +115,42 @@ function Qm({ lang }) {
         root.current.style.setProperty('--spread', String(value));
       };
       const proxy = { value: context.conditions.reduced ? 1 : 0 };
-      paint.current(proxy.value);
+      paint(proxy.value);
       if (!context.conditions.reduced) {
-        Si.to(proxy, { value: 1, ease: 'none', onUpdate: () => paint.current?.(proxy.value), scrollTrigger: {
-          trigger: root.current, start: () => 'top -' + window.innerHeight, end: 'bottom bottom', scrub: .55, invalidateOnRefresh: true,
+        Si.to(proxy, { value: 1, ease: 'none', onUpdate: () => paint(proxy.value), scrollTrigger: {
+          trigger: root.current, start: () => 'top -' + window.innerHeight * .65, end: 'bottom bottom', scrub: .55, invalidateOnRefresh: true,
         } });
       }
     }, root);
-    const resume = () => {
-      if (selectedRef.current === null || !scrollIntent.current || Math.abs(window.scrollY - scrollAnchor.current) < 7) return;
-      selectedRef.current = null;
-      setSelected(null);
-      paint.current?.(spread.current);
-    };
-    const escape = event => {
-      if (event.key === 'Escape') { selectedRef.current = null; setSelected(null); paint.current?.(spread.current); }
-      if (['ArrowDown', 'ArrowUp', 'PageDown', 'PageUp', 'Home', 'End', ' '].includes(event.key)) scrollIntent.current = true;
-    };
-    const intent = () => { scrollIntent.current = true; };
-    const pointerIntent = event => {
-      if (event.clientX >= document.documentElement.clientWidth || event.target.closest?.('a[href^="#"]')) intent();
-    };
-    window.addEventListener('scroll', resume, { passive: true });
-    window.addEventListener('wheel', intent, { passive: true });
-    window.addEventListener('touchmove', intent, { passive: true });
-    window.addEventListener('pointerdown', pointerIntent, { passive: true });
-    window.addEventListener('keydown', escape);
-    return () => {
-      media.revert();
-      window.removeEventListener('scroll', resume);
-      window.removeEventListener('wheel', intent);
-      window.removeEventListener('touchmove', intent);
-      window.removeEventListener('pointerdown', pointerIntent);
-      window.removeEventListener('keydown', escape);
-    };
+    return () => media.revert();
   }, []);
 
-  const select = index => {
-    const next = selectedRef.current === index ? null : index;
-    if (selectedRef.current === null && next !== null) heldPose.current = spread.current;
-    selectedRef.current = next;
-    scrollAnchor.current = window.scrollY;
-    scrollIntent.current = false;
-    setSelected(next);
-    paint.current?.(spread.current);
+  const stamp = format => {
+    const rectangular = format === 'rectangle';
+    const images = rectangular ? LT_RECTANGLE_LAYER_IMAGES : LT_LAYER_IMAGES;
+    return el('div', { className: 'explosion-visual explosion-' + format, role: 'group', 'aria-label': (en ? 'Eight layers — ' : 'Oito camadas — ') + (rectangular ? (en ? 'rectangular stamp' : 'selo retangular') : (en ? 'circular stamp' : 'selo circular')) },
+      LT_LAYERS.map((layer, index) => el('div', {
+        key: format + layer.file,
+        className: 'seal-plane' + (index === 7 ? ' invisible-plane' : '') + (index === 6 || index === 4 ? ' white-ink-plane' : ''),
+        'data-layer-index': index, style: { zIndex: index + 1 },
+      }, el('span', { className: 'plane-surface' },
+        el('img', { ...images[index], alt: layer[lang], loading: 'lazy', decoding: 'async', draggable: false }),
+        index === 7 ? el('span', { className: 'uv-ray', 'aria-hidden': true }) : null,
+      ))),
+    );
   };
 
-  const copy = selected === null
-    ? (en ? 'Choose a layer. Keep scrolling to continue the animation.' : 'Escolha uma camada. Continue rolando para retomar a animação.')
-    : LT_LAYERS[selected].body[en ? 1 : 0];
-
-  return el('section', { ref: root, className: 'layers-scene layers-v2', id: 'camadas', 'aria-labelledby': 'layers-title' },
+  return el('section', { ref: root, className: 'layers-scene layers-v2 layers-dual', id: 'camadas', 'aria-labelledby': 'layers-title' },
     el('div', { className: 'layers-sticky section-pad' },
       el('div', { className: 'layers-heading' },
         el('p', { className: 'chapter-label' }, en ? '02 / LAYERS' : '02 / CAMADAS'),
         el('h2', { id: 'layers-title' }, en ? 'One identity.' : 'Uma identidade.', el('br'), en ? 'Many ' : 'Muitas ', el('em', {}, en ? 'layers.' : 'camadas.')),
-        el('p', { className: 'scene-hint' }, en ? 'Scroll to separate. Select to look closer.' : 'Role para separar. Selecione para ver de perto.'),
+        el('p', { className: 'scene-hint' }, en ? 'Scroll to reveal the layers.' : 'Role para revelar as camadas.'),
       ),
-      el('div', { className: 'explosion-visual' + (selected === null ? '' : ' has-selection'), 'aria-label': en ? 'Eight original layers of the stamp' : 'Oito camadas originais do selo' },
-        LT_LAYERS.map((layer, index) => el('div', {
-          key: layer.file, className: 'seal-plane' + (selected === index ? ' is-selected' : '') + (index === 7 ? ' invisible-plane' : '') + (index === 6 || index === 4 ? ' white-ink-plane' : ''),
-          style: { zIndex: index + 1 }, 'aria-hidden': selected !== null && selected !== index,
-        }, el('div', { className: 'plane-surface' },
-          el('img', { ...LT_LAYER_IMAGES[index], alt: layer[lang], loading: 'lazy', decoding: 'async', draggable: false }),
-          index === 7 ? el('span', { className: 'uv-ray', 'aria-hidden': true }) : null,
-        ))),
-      ),
-      el('div', { className: 'layer-index' },
-        LT_LAYERS.map((layer, index) => el('button', {
-          key: layer.file, type: 'button', className: 'layer-label' + (selected === index ? ' is-active' : ''),
-          'aria-pressed': selected === index, onClick: () => select(index),
-        }, el('span', { className: 'layer-number' }, String(index + 1).padStart(2, '0')), el('span', {}, layer[lang]), el('span', { className: 'layer-mark', 'aria-hidden': true }, selected === index ? '−' : '+'))),
-        el('div', { className: 'layer-description', 'aria-live': 'polite' }, copy),
-        selected !== null ? el('button', { className: 'text-control layer-clear', type: 'button', onClick: () => select(selected) }, en ? 'View all layers' : 'Ver todas as camadas') : null,
+      stamp('circle'),
+      stamp('rectangle'),
+      el('div', { className: 'dual-layer-caption' },
+        el('p', {}, en ? 'Two formats. The same construction.' : 'Dois formatos. A mesma construção.'),
       ),
       el('span', { className: 'scene-axis', 'aria-hidden': true }, 'TAX STAMP / EXPLODED VIEW'),
     ),
@@ -209,23 +164,105 @@ function rh({ format = 'circle', uv = false, alt, className = '', eager = false 
 }
 /* LT_SEAL_END */
 function ih({lang:e}){let t=qs[e],[n,r]=(0,i.useState)(`circle`),[a,o]=(0,i.useState)(`spot`),s=(0,i.useRef)(null),c=e=>{if(a!==`spot`)return;let t=e.currentTarget.getBoundingClientRect();s.current?.style.setProperty(`--beam-x`,`${Math.max(0,Math.min(100,(e.clientX-t.left)/t.width*100))}%`),s.current?.style.setProperty(`--beam-y`,`${Math.max(0,Math.min(100,(e.clientY-t.top)/t.height*100))}%`)};return(0,X.jsxs)(`section`,{className:`light-lab section-pad light-${a}`,id:`luz`,"aria-labelledby":`light-title`,children:[(0,X.jsxs)(`div`,{className:`light-copy`,children:[(0,X.jsxs)(`p`,{className:`chapter-label`,children:[`03 / `,t.nav[2]]}),(0,X.jsxs)(`h2`,{id:`light-title`,children:[t.lightA,(0,X.jsx)(`br`,{}),t.lightB,` `,(0,X.jsx)(`em`,{children:t.lightEm})]}),(0,X.jsx)(`p`,{className:`body-copy`,children:t.lightBody}),(0,X.jsx)($m,{value:n,onValueChange:e=>r(e),className:`format-tabs`,children:(0,X.jsxs)(th,{"aria-label":e===`pt`?`Formato do selo`:`Stamp format`,children:[(0,X.jsx)(nh,{value:`circle`,children:t.circular}),(0,X.jsx)(nh,{value:`rectangle`,children:t.rectangular})]})})]}),(0,X.jsxs)(`div`,{className:`light-stage`,children:[(0,X.jsxs)(`div`,{ref:s,className:`light-window is-${n} mode-${a}`,onPointerMove:c,onPointerDown:c,children:[(0,X.jsx)(rh,{format:n,alt:`${t.sealImage} — ${n===`circle`?t.circular:t.rectangular}`,className:`day-seal`}),(0,X.jsx)(`div`,{className:`uv-window`,"aria-hidden":`true`,children:(0,X.jsx)(rh,{format:n,uv:!0,alt:``})}),(0,X.jsx)(`span`,{className:`beam-ring`,"aria-hidden":`true`})]}),(0,X.jsxs)(`div`,{className:`light-caption`,children:[(0,X.jsx)(`span`,{children:a===`day`?t.daylight:`UV`}),(0,X.jsx)(`p`,{children:a===`spot`?(0,X.jsxs)(X.Fragment,{children:[(0,X.jsx)(`span`,{className:`desktop-only`,children:t.lightHint}),(0,X.jsx)(`span`,{className:`mobile-only`,children:t.lightTouch})]}):n===`circle`?t.circleSize:t.rectSize}),(0,X.jsx)(`span`,{className:`light-state`,"aria-hidden":`true`,children:a===`day`?`○`:`◉`})]})]})]})}/* LT_SECURITY_START */
-// Spatial map verified against the supplied circular and rectangular stamp artwork.
-// Coordinates are normalized percentages within the original, uncropped image.
+// Security-item copy and positioning are centralized here for straightforward editing.
 const LT_SECURITY = [
-  { legacy: 0, circle: [32, 84], rectangle: [20, 49], region: ['Película holográfica', 'Holographic film'] },
-  { legacy: 1, circle: [68, 77], rectangle: [14, 69], region: ['Desenho botânico em relevo', 'Raised botanical design'] },
-  { legacy: 2, circle: [16, 25], rectangle: [86, 82], region: ['Fundo de linhas', 'Line background'] },
-  { legacy: 3, circle: [86, 49], rectangle: [63, 38], region: ['Contorno de microtextos', 'Microtext outline'] },
-  { legacy: 4, circle: [49, 22], rectangle: [79, 18], region: ['Marcas e área do QR Code', 'Marks and QR Code area'] },
-  { legacy: 5, circle: [23, 80], rectangle: [19, 34], region: ['Detalhes desmetalizados', 'Demetallized details'] },
-  { legacy: 6, circle: [60, 32], rectangle: [37, 47], region: ['Sequência alfanumérica', 'Alphanumeric sequence'] },
-  { legacy: 7, circle: [72, 38], rectangle: [82, 54], region: ['Desenho invisível · luz UV', 'Invisible design · UV light'] },
-  { legacy: null, circle: [24, 52], rectangle: [50, 63], region: ['QR Code · acesso digital', 'QR Code · digital access'] },
+  { circle: [32, 84], rectangle: [20, 49], region: ['Película holográfica', 'Holographic film'] },
+  { circle: [68, 77], rectangle: [14, 69], region: ['Desenho botânico em relevo', 'Raised botanical design'] },
+  { circle: [16, 25], rectangle: [86, 82], region: ['Fundo de linhas', 'Line background'] },
+  { circle: [86, 49], rectangle: [63, 38], region: ['Contorno de microtextos', 'Microtext outline'] },
+  { circle: [49, 22], rectangle: [79, 18], region: ['Marcas e área do QR Code', 'Marks and QR Code area'] },
+  { circle: [23, 80], rectangle: [19, 34], region: ['Detalhes desmetalizados', 'Demetallized details'] },
+  { circle: [60, 32], rectangle: [37, 47], region: ['Sequência alfanumérica', 'Alphanumeric sequence'] },
+  { circle: [72, 38], rectangle: [82, 54], region: ['Desenho invisível · luz UV', 'Invisible design · UV light'] },
+  { circle: [24, 52], rectangle: [50, 63], region: ['QR Code · acesso digital', 'QR Code · digital access'] },
+  { circle: [78, 62], rectangle: [70, 82], region: ['Papel de segurança', 'Security paper'] },
 ];
-// The narrow rectangular stamp uses external labels and exact-location leaders.
-// This keeps adjacent details individually tappable on a small screen.
-const LT_RECT_LABELS = [[19, 125], [5, 125], [95, 125], [62, -25], [84, -25], [17, -25], [37, -25], [77, 125], [50, 125]];
-const LT_CIRCLE_LABELS = [[27, 111], [77, 108], [-8, 19], [109, 57], [50, -10], [-6, 80], [83, -1], [109, 27], [-11, 51]];
+
+const LT_SECURITY_COPY = [
+  {
+    pt: 'Holografia de Alta Segurança', en: 'High-security holography',
+    label: { pt: 'A luz em movimento', en: 'Light in motion' },
+    body: {
+      pt: 'A holografia combina efeitos multicoloridos, imagens 2D/3D e textos alternados “VÁLIDO” / “OK”, que se modificam conforme o ângulo de visualização. Além da autenticação, as variações de luz e cor acrescentam contraste e movimento visual, criando uma camada dinâmica integrada à composição botânica.',
+      en: 'The holographic foil combines multicolour effects, 2D/3D imagery and alternating “VALID” / “OK” texts that change with the viewing angle. Beyond authentication, the shifting light and colour introduce contrast and visual movement, creating a dynamic layer that interacts with the botanical composition.',
+    },
+  },
+  {
+    pt: 'Calcografia sobre Holografia', en: 'Intaglio over holography',
+    label: { pt: 'Uma dimensão tátil', en: 'A tactile dimension' },
+    body: {
+      pt: 'A arte botânica em verde é impressa em calcografia sobre o papel e também sobre a película holográfica, criando continuidade visual entre materiais distintos. O relevo da tinta acrescenta uma dimensão tátil ao selo, enquanto as linhas botânicas contínuas reforçam a ideia de uma única identidade construída em múltiplas camadas.',
+      en: 'The green botanical artwork is printed in intaglio across both the paper substrate and the holographic foil, creating visual continuity between two different materials. The raised ink adds a distinctive tactile dimension, while the uninterrupted botanical lines reinforce the idea of a single, cohesive identity built across multiple layers.',
+    },
+  },
+  {
+    pt: 'Impressão íris', en: 'Iris printing',
+    label: { pt: 'Transição sem retículas', en: 'A transition without halftones' },
+    body: {
+      pt: 'A impressão íris controlada em máquina cria transições contínuas de cor sobre o fundo formado por linhas, sem o uso de retículas. O efeito acrescenta profundidade e movimento visual, fazendo com que o padrão de segurança se torne parte integrante do design, e não apenas um recurso técnico.',
+      en: 'Machine-controlled iris printing creates seamless colour transitions across the line-based background, without the use of halftone screens. The effect introduces depth and visual movement, allowing the security pattern to become an integral part of the design rather than a purely technical feature.',
+    },
+  },
+  {
+    pt: 'Microtextos Personalizados', en: 'Custom microtext',
+    label: { pt: 'Menos de 0,4 mm', en: 'Less than 0.4 mm' },
+    body: {
+      pt: 'Textos com altura inferior a 0,4 mm acompanham as linhas finas do fundo, incorporando informações legíveis diretamente ao padrão ornamental. O microtexto passa a fazer parte da textura gráfica, acrescentando detalhe, densidade visual e precisão à composição.',
+      en: 'Text below 0.4 mm follows the fine-line background, embedding readable information directly into the ornamental pattern. The microtext becomes part of the graphic texture, adding detail, density and precision to the design.',
+    },
+  },
+  {
+    pt: 'Tinta Opticamente Variável (OVI)', en: 'Optically Variable Ink (OVI)',
+    label: { pt: 'A cor responde ao ângulo', en: 'Color responds to the angle' },
+    body: {
+      pt: 'Aplicada sobre os textos na área do QR Code, a tinta OVI apresenta mudança de cor conforme o ângulo de visualização. O efeito cria um elemento de autenticação visual imediata e, ao mesmo tempo, destaca áreas importantes da composição.',
+      en: 'Applied to the lettering and QR code, OVI produces a colour-shifting effect as the viewing angle changes. The effect creates an immediate visual authentication feature while giving emphasis and hierarchy to key areas of the design.',
+    },
+  },
+  {
+    pt: 'Desmetalização e Micronumeração', en: 'Demetallization and Micro-Numbering',
+    label: { pt: 'Identificação pericial', en: 'Forensic identification' },
+    body: {
+      pt: 'Áreas selecionadas da película holográfica são desmetalizadas para formar elementos gráficos personalizados, enquanto a micronumeração acrescenta uma camada adicional de identificação individual. Integrados ao mesmo campo visual, esses recursos combinam informação, segurança e design em detalhes de alta precisão.',
+      en: 'Selected areas of the holographic foil are demetallized to create custom graphics, while micro-numbering adds individual identification. Integrated into the same visual field, both features combine security, information and design with fine detail.',
+    },
+  },
+  {
+    pt: 'Microperfuração Alfanumérica', en: 'Alphanumeric Microperforation',
+    label: { pt: 'Rastreabilidade indelével', en: 'Indelible traceability' },
+    body: {
+      pt: 'A sequência perfurada é integrada ao fundo impresso, fazendo com que a informação variável faça parte da composição gráfica. Os caracteres são formados por microperfurações permanentes no próprio substrato.',
+      en: 'The perforated sequence is visually integrated with the printed background, allowing variable information to become part of the overall composition rather than an added element.',
+    },
+  },
+  {
+    pt: 'Impressão invisível reagente à luz UV', en: 'UV-reactive invisible printing',
+    label: { pt: 'A luz revela outra camada', en: 'Light reveals another layer' },
+    body: {
+      pt: 'Sob luz ultravioleta, folhas, gotas e formas inspiradas na vida surgem, revelando uma nova dimensão do mesmo desenho. Alguns sinais de autenticidade estão visíveis. Outros aguardam a luz certa para serem revelados.',
+      en: 'Under ultraviolet light, hidden leaves, droplets and living forms emerge, revealing another dimension of the same design. Some signs of authenticity are visible, while others wait for the right light.',
+    },
+  },
+  {
+    pt: 'Rastreabilidade · QR Code', en: 'Traceability · QR Code',
+    label: { pt: 'Da prova física à identidade digital', en: 'From physical proof to digital identity' },
+    body: {
+      pt: 'Leia o QR Code do selo para acessar a validação. Cada selo possui uma identidade digital única vinculada aos seus elementos físicos de segurança. Ao ler o código pelo celular, o usuário pode verificar o selo sem instalar aplicativo.',
+      en: 'Read the seal’s QR code to open the validator. Each tax stamp carries a unique digital identity linked to its physical security features, allowing verification by smartphone without installing an app.',
+    },
+  },
+  {
+    pt: 'Substrato de segurança', en: 'Security substrate',
+    label: { pt: 'Segurança incorporada ao papel', en: 'Security built into the paper' },
+    body: {
+      pt: 'Papel de segurança com baixa coesão interna controlada. Ao ser removido, sua estrutura se rompe, dificultando a reutilização ou transferência do selo. A massa do papel também incorpora fibras de segurança invisíveis sob luz normal, que se tornam visíveis sob iluminação UV, acrescentando uma camada adicional de autenticação.',
+      en: 'Security paper with controlled low internal cohesion. If removal is attempted, the paper structure breaks apart, making the seal difficult to reuse or transfer. The paper also contains security fibers embedded directly into the substrate, invisible under normal light and revealed under UV illumination, adding an additional layer of authentication.',
+    },
+  },
+];
+
+const LT_RECT_LABELS = [[19, 125], [5, 125], [95, 125], [62, -25], [84, -25], [17, -25], [37, -25], [77, 125], [50, 125], [72, 125]];
+const LT_CIRCLE_LABELS = [[27, 111], [77, 108], [-8, 19], [109, 57], [50, -10], [-6, 80], [83, -1], [109, 27], [-11, 51], [103, 91]];
 
 function ah({ lang }) {
   const en = lang === 'en';
@@ -239,12 +276,7 @@ function ah({ lang }) {
     const { key, ...attributes } = props;
     return (children.length > 1 ? X.jsxs : X.jsx)(tag, { ...attributes, ...(children.length ? { children: children.length === 1 ? children[0] : children } : {}) }, key);
   };
-  const trace = {
-    pt: 'Rastreabilidade · QR Code', en: 'Traceability · QR Code',
-    label: { pt: 'Da prova física à identidade digital', en: 'From physical proof to digital identity' },
-    body: { pt: 'O QR Code abre o ambiente de verificação do selo. A autenticação combina a imagem, os elementos de segurança e os dados registrados.', en: 'The QR Code opens the stamp verification platform. Authentication combines its image, security features and registered data.' },
-  };
-  const data = LT_SECURITY.map(entry => entry.legacy === null ? trace : Ys[entry.legacy]);
+  const data = LT_SECURITY_COPY;
   const current = data[selected];
   const illustration = LT_ASSETS.details[format][selected];
   const uv = selected === 7;
@@ -265,7 +297,7 @@ function ah({ lang }) {
   return el('section', { ref: root, className: 'security-explorer section-pad security-atlas', 'aria-labelledby': 'security-title' },
     el('div', { className: 'security-heading' },
       el('h2', { id: 'security-title' }, t.detailA, el('br'), el('em', {}, t.detailEm)),
-      el('p', { className: 'body-copy' }, en ? 'Explore the points on the stamp. Each location reveals a security detail.' : 'Explore os pontos no selo. Cada localização revela um detalhe de segurança.'),
+      el('p', { className: 'body-copy' }, en ? 'Explore the seal. Each point reveals a security layer integrated into the design.' : 'Explore os pontos do selo. Cada um revela uma camada de segurança integrada ao design.'),
     ),
     el('div', { className: 'atlas-toolbar' },
       el($m, { value: format, onValueChange: setFormat, className: 'format-tabs atlas-tabs' },
@@ -276,25 +308,26 @@ function ah({ lang }) {
     el('div', { className: 'atlas-layout' },
       el('div', { className: 'atlas-exhibit' },
         el('div', { className: 'atlas-map-frame' },
-        el('div', { className: 'atlas-stage atlas-' + format + (uv ? ' atlas-uv' : ''), role: 'group', 'aria-label': en ? 'Security details located on the stamp' : 'Detalhes de segurança localizados no selo' },
-          el('img', { ...LTSealProps(format, uv), className: 'atlas-seal', alt: t.sealImage + ' — ' + (format === 'circle' ? t.circular : t.rectangular) + (uv ? ' · UV' : ''), loading: 'lazy', decoding: 'async', draggable: false }),
-          el('svg', { className: 'atlas-leaders', viewBox: '0 0 100 100', preserveAspectRatio: 'none', 'aria-hidden': true },
-            LT_SECURITY.map((entry, index) => el('g', { key: String(index), className: selected === index ? 'is-active' : '' },
-              el('line', { x1: entry[format][0], y1: entry[format][1], x2: labels[index][0], y2: labels[index][1] }),
-              el('circle', { cx: entry[format][0], cy: entry[format][1], r: .6 }),
-            ))),
-          LT_SECURITY.map((entry, index) => el('button', {
-            key: String(index), type: 'button', className: 'atlas-point' + (selected === index ? ' is-active' : ''),
-            style: { left: labels[index][0] + '%', top: labels[index][1] + '%' },
-            'aria-label': String(index + 1).padStart(2, '0') + '. ' + data[index][lang], 'aria-pressed': selected === index,
-            onClick: () => choose(index),
-          }, String(index + 1).padStart(2, '0'))),
-        )),
+          el('div', { className: 'atlas-stage atlas-' + format + (uv ? ' atlas-uv' : ''), role: 'group', 'aria-label': en ? 'Security details located on the stamp' : 'Detalhes de segurança localizados no selo' },
+            el('img', { ...LTSealProps(format, uv), className: 'atlas-seal', alt: t.sealImage + ' — ' + (format === 'circle' ? t.circular : t.rectangular) + (uv ? ' · UV' : ''), loading: 'lazy', decoding: 'async', draggable: false }),
+            el('svg', { className: 'atlas-leaders', viewBox: '0 0 100 100', preserveAspectRatio: 'none', 'aria-hidden': true },
+              LT_SECURITY.map((entry, index) => el('g', { key: String(index), className: selected === index ? 'is-active' : '' },
+                el('line', { x1: entry[format][0], y1: entry[format][1], x2: labels[index][0], y2: labels[index][1] }),
+                el('circle', { cx: entry[format][0], cy: entry[format][1], r: .6 }),
+              ))),
+            LT_SECURITY.map((entry, index) => el('button', {
+              key: String(index), type: 'button', className: 'atlas-point' + (selected === index ? ' is-active' : ''),
+              style: { left: labels[index][0] + '%', top: labels[index][1] + '%' },
+              'aria-label': String(index + 1).padStart(2, '0') + '. ' + data[index][lang], 'aria-pressed': selected === index,
+              onClick: () => choose(index),
+            }, String(index + 1).padStart(2, '0')),
+          )),
+        ),
         el('div', { className: 'atlas-caption' }, el('span', {}, format === 'circle' ? t.circular : t.rectangular), el('span', {}, uv ? 'UV' : (en ? 'VISIBLE LIGHT' : 'LUZ VISÍVEL'))),
         el('div', { className: 'atlas-detail', 'aria-live': 'polite', 'aria-atomic': true },
           el('figure', { className: 'atlas-macro-figure' },
-            el('button', { ref: macroButton, type: 'button', className: 'atlas-macro', 'aria-haspopup': 'dialog', 'aria-label': t.enlarge + ': ' + current[lang], onPointerEnter: () => LTWarmImage(illustration), onFocus: () => LTWarmImage(illustration), onClick: () => { LTWarmImage(illustration); setOpen(true); } },
-              el('img', { src: illustration.variants[0].webp, srcSet: illustration.srcSet, sizes: '(max-width: 767px) 126px, 176px', alt: t.detailImage + ': ' + current[lang], width: illustration.width, height: illustration.height, loading: 'lazy', decoding: 'async' }),
+            el('button', { ref: macroButton, type: 'button', className: 'atlas-macro' + (selected === 9 ? ' is-substrate' : ''), 'aria-haspopup': 'dialog', 'aria-label': t.enlarge + ': ' + current[lang], onPointerEnter: () => LTWarmImage(illustration), onFocus: () => LTWarmImage(illustration), onClick: () => { LTWarmImage(illustration); setOpen(true); } },
+              el('span', { className: 'atlas-macro-crop' }, el('img', { src: illustration.variants[0].webp, srcSet: illustration.srcSet, sizes: '(max-width: 767px) 126px, 176px', alt: t.detailImage + ': ' + current[lang], width: illustration.width, height: illustration.height, loading: 'lazy', decoding: 'async' })),
               el('span', { className: 'atlas-macro-expand', 'aria-hidden': true }, '+')),
             el('figcaption', {}, t.enlarge)),
           el('div', { className: 'atlas-detail-copy' },
@@ -302,8 +335,8 @@ function ah({ lang }) {
             el('h3', {}, current[lang]), el('p', {}, current.body[lang])),
         ),
       ),
-      el('nav', { className: 'atlas-index', 'aria-label': en ? 'Nine details of the stamp' : 'Nove detalhes do selo' },
-        el('p', { className: 'atlas-index-title' }, en ? '09 ways to look closer' : '09 formas de olhar mais perto'),
+      el('nav', { className: 'atlas-index', 'aria-label': en ? 'Ten security layers' : 'Dez camadas de segurança' },
+        el('p', { className: 'atlas-index-title' }, en ? '10 layers to discover' : '10 camadas para descobrir'),
         data.map((entry, index) => el('button', { key: String(index), type: 'button', className: 'atlas-item' + (selected === index ? ' is-active' : ''), 'aria-pressed': selected === index, onClick: () => choose(index) },
           el('span', {}, String(index + 1).padStart(2, '0')), el('span', {}, entry[lang]), el('span', { 'aria-hidden': true }, index === selected ? '−' : '+'))),
       ),
@@ -317,7 +350,35 @@ function ah({ lang }) {
   );
 }
 /* LT_SECURITY_END */
-Si.registerPlugin(Y);var oh=[`origem`,`camadas`,`luz`,`rastro`];function sh({footer:e=!1}){return(0,X.jsxs)(`div`,{className:`brand ${e?`brand-footer`:``}`,"aria-label":`PRIMI e BP Security`,children:[(0,X.jsx)(`img`,{className:`primi-logo`,src:`/media/primi-logo.webp`,width:`560`,height:`153`,alt:`PRIMI`}),(0,X.jsx)(`span`,{className:`brand-divider`,"aria-hidden":`true`}),(0,X.jsx)(`img`,{className:`bp-logo`,src:`/media/bp-logo.webp`,width:`700`,height:`89`,alt:`BP Security`})]})}function ch({label:e,onClick:t,large:n=!1}){return(0,X.jsxs)(`button`,{className:`film-control ${n?`large`:``}`,onClick:t,children:[(0,X.jsx)(`span`,{className:`play-circle`,children:(0,X.jsx)(Jm,{})}),(0,X.jsx)(`span`,{children:e}),(0,X.jsx)(`span`,{className:`film-time`,children:LT_ASSETS.film.duration})]})}
+Si.registerPlugin(Y);var oh=[`origem`,`camadas`,`luz`,`rastro`];/* LT_BRAND_START */
+// Company links are centralized here because this component is shared by the header and footer.
+function sh({ footer: e = false }) {
+  return (0, X.jsxs)(`div`, {
+    className: `brand ${e ? `brand-footer` : `brand-header`}`,
+    "aria-label": `PRIMI e BP Security`,
+    children: [
+      (0, X.jsx)(`a`, {
+        className: `brand-company-link`,
+        href: `https://primi.com.br/`,
+        target: `_blank`,
+        rel: `noopener noreferrer`,
+        "aria-label": `Visitar o site da PRIMI`,
+        children: (0, X.jsx)(`img`, { className: `primi-logo`, src: `/media/primi-logo.webp`, width: `560`, height: `153`, alt: `PRIMI` }),
+      }),
+      (0, X.jsx)(`span`, { className: `brand-divider`, "aria-hidden": `true` }),
+      (0, X.jsx)(`a`, {
+        className: `brand-company-link`,
+        href: `https://www.bpsec.com.br/`,
+        target: `_blank`,
+        rel: `noopener noreferrer`,
+        "aria-label": `Visitar o site da BP Security`,
+        children: (0, X.jsx)(`img`, { className: `bp-logo`, src: `/media/bp-logo.webp`, width: `700`, height: `89`, alt: `BP Security` }),
+      }),
+    ],
+  });
+}
+/* LT_BRAND_END */
+function ch({label:e,onClick:t,large:n=!1}){return(0,X.jsxs)(`button`,{className:`film-control ${n?`large`:``}`,onClick:t,children:[(0,X.jsx)(`span`,{className:`play-circle`,children:(0,X.jsx)(Jm,{})}),(0,X.jsx)(`span`,{children:e}),(0,X.jsx)(`span`,{className:`film-time`,children:LT_ASSETS.film.duration})]})}
 
 
 
@@ -418,12 +479,13 @@ Si.registerPlugin(Y);var oh=[`origem`,`camadas`,`luz`,`rastro`];function sh({foo
 
 
 /* LT_MEDIA_DATA_START */
-/* Generated by prepare-media.mjs. Original reference files are preserved. */
-const LT_ASSETS = {"photos":{"leaf":{"desktop":{"width":1672,"height":941,"variants":[{"width":960,"avif":"/media/optimized/leaf-611e0ac079b2-960.avif","webp":"/media/optimized/leaf-611e0ac079b2-960.webp"},{"width":1440,"avif":"/media/optimized/leaf-611e0ac079b2-1440.avif","webp":"/media/optimized/leaf-611e0ac079b2-1440.webp"},{"width":1672,"avif":"/media/optimized/leaf-611e0ac079b2-1672.avif","webp":"/media/optimized/leaf-611e0ac079b2-1672.webp"}],"src":"/media/optimized/leaf-611e0ac079b2-1672.webp","srcSet":"/media/optimized/leaf-611e0ac079b2-960.webp 960w, /media/optimized/leaf-611e0ac079b2-1440.webp 1440w, /media/optimized/leaf-611e0ac079b2-1672.webp 1672w","avifSrcSet":"/media/optimized/leaf-611e0ac079b2-960.avif 960w, /media/optimized/leaf-611e0ac079b2-1440.avif 1440w, /media/optimized/leaf-611e0ac079b2-1672.avif 1672w"},"mobile":{"width":529,"height":941,"variants":[{"width":320,"avif":"/media/optimized/leaf-portrait-56b0a944e7f8-320.avif","webp":"/media/optimized/leaf-portrait-56b0a944e7f8-320.webp"},{"width":480,"avif":"/media/optimized/leaf-portrait-56b0a944e7f8-480.avif","webp":"/media/optimized/leaf-portrait-56b0a944e7f8-480.webp"},{"width":529,"avif":"/media/optimized/leaf-portrait-56b0a944e7f8-529.avif","webp":"/media/optimized/leaf-portrait-56b0a944e7f8-529.webp"}],"src":"/media/optimized/leaf-portrait-56b0a944e7f8-529.webp","srcSet":"/media/optimized/leaf-portrait-56b0a944e7f8-320.webp 320w, /media/optimized/leaf-portrait-56b0a944e7f8-480.webp 480w, /media/optimized/leaf-portrait-56b0a944e7f8-529.webp 529w","avifSrcSet":"/media/optimized/leaf-portrait-56b0a944e7f8-320.avif 320w, /media/optimized/leaf-portrait-56b0a944e7f8-480.avif 480w, /media/optimized/leaf-portrait-56b0a944e7f8-529.avif 529w"},"heroMobile":{"width":529,"height":941,"variants":[{"width":320,"avif":"/media/optimized/leaf-hero-portrait-b2787f3c9cfc-320.avif","webp":"/media/optimized/leaf-hero-portrait-b2787f3c9cfc-320.webp"},{"width":480,"avif":"/media/optimized/leaf-hero-portrait-b2787f3c9cfc-480.avif","webp":"/media/optimized/leaf-hero-portrait-b2787f3c9cfc-480.webp"},{"width":529,"avif":"/media/optimized/leaf-hero-portrait-b2787f3c9cfc-529.avif","webp":"/media/optimized/leaf-hero-portrait-b2787f3c9cfc-529.webp"}],"src":"/media/optimized/leaf-hero-portrait-b2787f3c9cfc-529.webp","srcSet":"/media/optimized/leaf-hero-portrait-b2787f3c9cfc-320.webp 320w, /media/optimized/leaf-hero-portrait-b2787f3c9cfc-480.webp 480w, /media/optimized/leaf-hero-portrait-b2787f3c9cfc-529.webp 529w","avifSrcSet":"/media/optimized/leaf-hero-portrait-b2787f3c9cfc-320.avif 320w, /media/optimized/leaf-hero-portrait-b2787f3c9cfc-480.avif 480w, /media/optimized/leaf-hero-portrait-b2787f3c9cfc-529.avif 529w"}},"dew":{"desktop":{"width":1672,"height":941,"variants":[{"width":960,"avif":"/media/optimized/dew-05ff2b685a93-960.avif","webp":"/media/optimized/dew-05ff2b685a93-960.webp"},{"width":1440,"avif":"/media/optimized/dew-05ff2b685a93-1440.avif","webp":"/media/optimized/dew-05ff2b685a93-1440.webp"},{"width":1672,"avif":"/media/optimized/dew-05ff2b685a93-1672.avif","webp":"/media/optimized/dew-05ff2b685a93-1672.webp"}],"src":"/media/optimized/dew-05ff2b685a93-1672.webp","srcSet":"/media/optimized/dew-05ff2b685a93-960.webp 960w, /media/optimized/dew-05ff2b685a93-1440.webp 1440w, /media/optimized/dew-05ff2b685a93-1672.webp 1672w","avifSrcSet":"/media/optimized/dew-05ff2b685a93-960.avif 960w, /media/optimized/dew-05ff2b685a93-1440.avif 1440w, /media/optimized/dew-05ff2b685a93-1672.avif 1672w"},"mobile":{"width":529,"height":941,"variants":[{"width":320,"avif":"/media/optimized/dew-portrait-8c2bbb1d76c7-320.avif","webp":"/media/optimized/dew-portrait-8c2bbb1d76c7-320.webp"},{"width":480,"avif":"/media/optimized/dew-portrait-8c2bbb1d76c7-480.avif","webp":"/media/optimized/dew-portrait-8c2bbb1d76c7-480.webp"},{"width":529,"avif":"/media/optimized/dew-portrait-8c2bbb1d76c7-529.avif","webp":"/media/optimized/dew-portrait-8c2bbb1d76c7-529.webp"}],"src":"/media/optimized/dew-portrait-8c2bbb1d76c7-529.webp","srcSet":"/media/optimized/dew-portrait-8c2bbb1d76c7-320.webp 320w, /media/optimized/dew-portrait-8c2bbb1d76c7-480.webp 480w, /media/optimized/dew-portrait-8c2bbb1d76c7-529.webp 529w","avifSrcSet":"/media/optimized/dew-portrait-8c2bbb1d76c7-320.avif 320w, /media/optimized/dew-portrait-8c2bbb1d76c7-480.avif 480w, /media/optimized/dew-portrait-8c2bbb1d76c7-529.avif 529w"},"closingMobile":{"width":529,"height":941,"variants":[{"width":320,"avif":"/media/optimized/dew-closing-portrait-b9cda708bcdc-320.avif","webp":"/media/optimized/dew-closing-portrait-b9cda708bcdc-320.webp"},{"width":480,"avif":"/media/optimized/dew-closing-portrait-b9cda708bcdc-480.avif","webp":"/media/optimized/dew-closing-portrait-b9cda708bcdc-480.webp"},{"width":529,"avif":"/media/optimized/dew-closing-portrait-b9cda708bcdc-529.avif","webp":"/media/optimized/dew-closing-portrait-b9cda708bcdc-529.webp"}],"src":"/media/optimized/dew-closing-portrait-b9cda708bcdc-529.webp","srcSet":"/media/optimized/dew-closing-portrait-b9cda708bcdc-320.webp 320w, /media/optimized/dew-closing-portrait-b9cda708bcdc-480.webp 480w, /media/optimized/dew-closing-portrait-b9cda708bcdc-529.webp 529w","avifSrcSet":"/media/optimized/dew-closing-portrait-b9cda708bcdc-320.avif 320w, /media/optimized/dew-closing-portrait-b9cda708bcdc-480.avif 480w, /media/optimized/dew-closing-portrait-b9cda708bcdc-529.avif 529w"}},"matter":{"desktop":{"width":1672,"height":941,"variants":[{"width":960,"avif":"/media/optimized/matter-cae92e55435f-960.avif","webp":"/media/optimized/matter-cae92e55435f-960.webp"},{"width":1440,"avif":"/media/optimized/matter-cae92e55435f-1440.avif","webp":"/media/optimized/matter-cae92e55435f-1440.webp"},{"width":1672,"avif":"/media/optimized/matter-cae92e55435f-1672.avif","webp":"/media/optimized/matter-cae92e55435f-1672.webp"}],"src":"/media/optimized/matter-cae92e55435f-1672.webp","srcSet":"/media/optimized/matter-cae92e55435f-960.webp 960w, /media/optimized/matter-cae92e55435f-1440.webp 1440w, /media/optimized/matter-cae92e55435f-1672.webp 1672w","avifSrcSet":"/media/optimized/matter-cae92e55435f-960.avif 960w, /media/optimized/matter-cae92e55435f-1440.avif 1440w, /media/optimized/matter-cae92e55435f-1672.avif 1672w"},"mobile":{"width":529,"height":941,"variants":[{"width":320,"avif":"/media/optimized/matter-portrait-5a6f1f5c48b3-320.avif","webp":"/media/optimized/matter-portrait-5a6f1f5c48b3-320.webp"},{"width":480,"avif":"/media/optimized/matter-portrait-5a6f1f5c48b3-480.avif","webp":"/media/optimized/matter-portrait-5a6f1f5c48b3-480.webp"},{"width":529,"avif":"/media/optimized/matter-portrait-5a6f1f5c48b3-529.avif","webp":"/media/optimized/matter-portrait-5a6f1f5c48b3-529.webp"}],"src":"/media/optimized/matter-portrait-5a6f1f5c48b3-529.webp","srcSet":"/media/optimized/matter-portrait-5a6f1f5c48b3-320.webp 320w, /media/optimized/matter-portrait-5a6f1f5c48b3-480.webp 480w, /media/optimized/matter-portrait-5a6f1f5c48b3-529.webp 529w","avifSrcSet":"/media/optimized/matter-portrait-5a6f1f5c48b3-320.avif 320w, /media/optimized/matter-portrait-5a6f1f5c48b3-480.avif 480w, /media/optimized/matter-portrait-5a6f1f5c48b3-529.avif 529w"}}},"seals":{"circle":{"width":4180,"height":4180,"variants":[{"width":480,"webp":"/media/optimized/seal-circle-bfc307f5afd2-480.webp"},{"width":800,"webp":"/media/optimized/seal-circle-bfc307f5afd2-800.webp"},{"width":1200,"webp":"/media/optimized/seal-circle-bfc307f5afd2-1200.webp"},{"width":1600,"webp":"/media/optimized/seal-circle-bfc307f5afd2-1600.webp"}],"src":"/media/optimized/seal-circle-bfc307f5afd2-1600.webp","srcSet":"/media/optimized/seal-circle-bfc307f5afd2-480.webp 480w, /media/optimized/seal-circle-bfc307f5afd2-800.webp 800w, /media/optimized/seal-circle-bfc307f5afd2-1200.webp 1200w, /media/optimized/seal-circle-bfc307f5afd2-1600.webp 1600w","avifSrcSet":""},"circle-uv":{"width":4180,"height":4180,"variants":[{"width":480,"webp":"/media/optimized/seal-circle-uv-352884c82ce1-480.webp"},{"width":800,"webp":"/media/optimized/seal-circle-uv-352884c82ce1-800.webp"},{"width":1200,"webp":"/media/optimized/seal-circle-uv-352884c82ce1-1200.webp"},{"width":1600,"webp":"/media/optimized/seal-circle-uv-352884c82ce1-1600.webp"}],"src":"/media/optimized/seal-circle-uv-352884c82ce1-1600.webp","srcSet":"/media/optimized/seal-circle-uv-352884c82ce1-480.webp 480w, /media/optimized/seal-circle-uv-352884c82ce1-800.webp 800w, /media/optimized/seal-circle-uv-352884c82ce1-1200.webp 1200w, /media/optimized/seal-circle-uv-352884c82ce1-1600.webp 1600w","avifSrcSet":""},"rectangle":{"width":4198,"height":1244,"variants":[{"width":800,"webp":"/media/optimized/seal-rectangle-f886ae42aad6-800.webp"},{"width":1200,"webp":"/media/optimized/seal-rectangle-f886ae42aad6-1200.webp"},{"width":1600,"webp":"/media/optimized/seal-rectangle-f886ae42aad6-1600.webp"},{"width":2400,"webp":"/media/optimized/seal-rectangle-f886ae42aad6-2400.webp"}],"src":"/media/optimized/seal-rectangle-f886ae42aad6-2400.webp","srcSet":"/media/optimized/seal-rectangle-f886ae42aad6-800.webp 800w, /media/optimized/seal-rectangle-f886ae42aad6-1200.webp 1200w, /media/optimized/seal-rectangle-f886ae42aad6-1600.webp 1600w, /media/optimized/seal-rectangle-f886ae42aad6-2400.webp 2400w","avifSrcSet":""},"rectangle-uv":{"width":4198,"height":1244,"variants":[{"width":800,"webp":"/media/optimized/seal-rectangle-uv-7127f2eb1386-800.webp"},{"width":1200,"webp":"/media/optimized/seal-rectangle-uv-7127f2eb1386-1200.webp"},{"width":1600,"webp":"/media/optimized/seal-rectangle-uv-7127f2eb1386-1600.webp"},{"width":2400,"webp":"/media/optimized/seal-rectangle-uv-7127f2eb1386-2400.webp"}],"src":"/media/optimized/seal-rectangle-uv-7127f2eb1386-2400.webp","srcSet":"/media/optimized/seal-rectangle-uv-7127f2eb1386-800.webp 800w, /media/optimized/seal-rectangle-uv-7127f2eb1386-1200.webp 1200w, /media/optimized/seal-rectangle-uv-7127f2eb1386-1600.webp 1600w, /media/optimized/seal-rectangle-uv-7127f2eb1386-2400.webp 2400w","avifSrcSet":""}},"details":{"circle":[{"width":719,"height":375,"variants":[{"width":320,"webp":"/media/optimized/detail-circle-0-a0c482e7453b-320.webp"},{"width":719,"webp":"/media/optimized/detail-circle-0-a0c482e7453b-719.webp"}],"src":"/media/optimized/detail-circle-0-a0c482e7453b-719.webp","srcSet":"/media/optimized/detail-circle-0-a0c482e7453b-320.webp 320w, /media/optimized/detail-circle-0-a0c482e7453b-719.webp 719w","avifSrcSet":"","source":"references/ITENS DE SEGURANÇA - CIRCLE/HOLOGRAFIA.png"},{"width":1029,"height":522,"variants":[{"width":320,"webp":"/media/optimized/detail-circle-1-77f58e3a13b8-320.webp"},{"width":960,"webp":"/media/optimized/detail-circle-1-77f58e3a13b8-960.webp"},{"width":1029,"webp":"/media/optimized/detail-circle-1-77f58e3a13b8-1029.webp"}],"src":"/media/optimized/detail-circle-1-77f58e3a13b8-1029.webp","srcSet":"/media/optimized/detail-circle-1-77f58e3a13b8-320.webp 320w, /media/optimized/detail-circle-1-77f58e3a13b8-960.webp 960w, /media/optimized/detail-circle-1-77f58e3a13b8-1029.webp 1029w","avifSrcSet":"","source":"references/ITENS DE SEGURANÇA - CIRCLE/CALCOGRAFIA TALHO DOCE.png"},{"width":1318,"height":506,"variants":[{"width":320,"webp":"/media/optimized/detail-circle-2-8e1e34a5d9f3-320.webp"},{"width":960,"webp":"/media/optimized/detail-circle-2-8e1e34a5d9f3-960.webp"},{"width":1318,"webp":"/media/optimized/detail-circle-2-8e1e34a5d9f3-1318.webp"}],"src":"/media/optimized/detail-circle-2-8e1e34a5d9f3-1318.webp","srcSet":"/media/optimized/detail-circle-2-8e1e34a5d9f3-320.webp 320w, /media/optimized/detail-circle-2-8e1e34a5d9f3-960.webp 960w, /media/optimized/detail-circle-2-8e1e34a5d9f3-1318.webp 1318w","avifSrcSet":"","source":"references/ITENS DE SEGURANÇA - CIRCLE/IRIS DE MAQUINA.png"},{"width":1296,"height":441,"variants":[{"width":320,"webp":"/media/optimized/detail-circle-3-88c2fad2de77-320.webp"},{"width":960,"webp":"/media/optimized/detail-circle-3-88c2fad2de77-960.webp"},{"width":1296,"webp":"/media/optimized/detail-circle-3-88c2fad2de77-1296.webp"}],"src":"/media/optimized/detail-circle-3-88c2fad2de77-1296.webp","srcSet":"/media/optimized/detail-circle-3-88c2fad2de77-320.webp 320w, /media/optimized/detail-circle-3-88c2fad2de77-960.webp 960w, /media/optimized/detail-circle-3-88c2fad2de77-1296.webp 1296w","avifSrcSet":"","source":"references/ITENS DE SEGURANÇA - CIRCLE/MICROTEXTO PERSONALIZADO.png"},{"width":1422,"height":341,"variants":[{"width":320,"webp":"/media/optimized/detail-circle-4-e1007fc16c5f-320.webp"},{"width":960,"webp":"/media/optimized/detail-circle-4-e1007fc16c5f-960.webp"},{"width":1422,"webp":"/media/optimized/detail-circle-4-e1007fc16c5f-1422.webp"}],"src":"/media/optimized/detail-circle-4-e1007fc16c5f-1422.webp","srcSet":"/media/optimized/detail-circle-4-e1007fc16c5f-320.webp 320w, /media/optimized/detail-circle-4-e1007fc16c5f-960.webp 960w, /media/optimized/detail-circle-4-e1007fc16c5f-1422.webp 1422w","avifSrcSet":"","source":"references/ITENS DE SEGURANÇA - CIRCLE/IMPRESSAO IRIDESCENTE OPTICAMENTE VARIAVEL.png"},{"width":342,"height":362,"variants":[{"width":320,"webp":"/media/optimized/detail-circle-5-601c6e39e0ce-320.webp"},{"width":342,"webp":"/media/optimized/detail-circle-5-601c6e39e0ce-342.webp"}],"src":"/media/optimized/detail-circle-5-601c6e39e0ce-342.webp","srcSet":"/media/optimized/detail-circle-5-601c6e39e0ce-320.webp 320w, /media/optimized/detail-circle-5-601c6e39e0ce-342.webp 342w","avifSrcSet":"","source":"references/ITENS DE SEGURANÇA - CIRCLE/desmetalização.png"},{"width":1261,"height":334,"variants":[{"width":320,"webp":"/media/optimized/detail-circle-6-8cc2d0dd9fd6-320.webp"},{"width":960,"webp":"/media/optimized/detail-circle-6-8cc2d0dd9fd6-960.webp"},{"width":1261,"webp":"/media/optimized/detail-circle-6-8cc2d0dd9fd6-1261.webp"}],"src":"/media/optimized/detail-circle-6-8cc2d0dd9fd6-1261.webp","srcSet":"/media/optimized/detail-circle-6-8cc2d0dd9fd6-320.webp 320w, /media/optimized/detail-circle-6-8cc2d0dd9fd6-960.webp 960w, /media/optimized/detail-circle-6-8cc2d0dd9fd6-1261.webp 1261w","avifSrcSet":"","source":"references/ITENS DE SEGURANÇA - CIRCLE/NUMERACAO MICRO PERFURADA.png"},{"width":4180,"height":4180,"variants":[{"width":480,"webp":"/media/optimized/seal-circle-uv-352884c82ce1-480.webp"},{"width":800,"webp":"/media/optimized/seal-circle-uv-352884c82ce1-800.webp"},{"width":1200,"webp":"/media/optimized/seal-circle-uv-352884c82ce1-1200.webp"},{"width":1600,"webp":"/media/optimized/seal-circle-uv-352884c82ce1-1600.webp"}],"src":"/media/optimized/seal-circle-uv-352884c82ce1-1600.webp","srcSet":"/media/optimized/seal-circle-uv-352884c82ce1-480.webp 480w, /media/optimized/seal-circle-uv-352884c82ce1-800.webp 800w, /media/optimized/seal-circle-uv-352884c82ce1-1200.webp 1200w, /media/optimized/seal-circle-uv-352884c82ce1-1600.webp 1600w","avifSrcSet":"","source":"original-stamp"},{"width":691,"height":691,"variants":[{"width":320,"webp":"/media/optimized/detail-circle-8-e5ec859a182c-320.webp"},{"width":691,"webp":"/media/optimized/detail-circle-8-e5ec859a182c-691.webp"}],"src":"/media/optimized/detail-circle-8-e5ec859a182c-691.webp","srcSet":"/media/optimized/detail-circle-8-e5ec859a182c-320.webp 320w, /media/optimized/detail-circle-8-e5ec859a182c-691.webp 691w","avifSrcSet":"","source":"references/ITENS DE SEGURANÇA - CIRCLE/QR CODE.png"}],"rectangle":[{"width":719,"height":375,"variants":[{"width":320,"webp":"/media/optimized/detail-rectangle-0-a0c482e7453b-320.webp"},{"width":719,"webp":"/media/optimized/detail-rectangle-0-a0c482e7453b-719.webp"}],"src":"/media/optimized/detail-rectangle-0-a0c482e7453b-719.webp","srcSet":"/media/optimized/detail-rectangle-0-a0c482e7453b-320.webp 320w, /media/optimized/detail-rectangle-0-a0c482e7453b-719.webp 719w","avifSrcSet":"","source":"references/ITENS DE SEGURANÇA - RECTANGLE/HOLOGRAFIA.png"},{"width":1062,"height":886,"variants":[{"width":320,"webp":"/media/optimized/detail-rectangle-1-6db4a7190e6f-320.webp"},{"width":960,"webp":"/media/optimized/detail-rectangle-1-6db4a7190e6f-960.webp"},{"width":1062,"webp":"/media/optimized/detail-rectangle-1-6db4a7190e6f-1062.webp"}],"src":"/media/optimized/detail-rectangle-1-6db4a7190e6f-1062.webp","srcSet":"/media/optimized/detail-rectangle-1-6db4a7190e6f-320.webp 320w, /media/optimized/detail-rectangle-1-6db4a7190e6f-960.webp 960w, /media/optimized/detail-rectangle-1-6db4a7190e6f-1062.webp 1062w","avifSrcSet":"","source":"references/ITENS DE SEGURANÇA - RECTANGLE/IMPRESSAO CALCOGRAFICA TALHO DOCE.png"},{"width":1403,"height":376,"variants":[{"width":320,"webp":"/media/optimized/detail-rectangle-2-f347deb587e6-320.webp"},{"width":960,"webp":"/media/optimized/detail-rectangle-2-f347deb587e6-960.webp"},{"width":1403,"webp":"/media/optimized/detail-rectangle-2-f347deb587e6-1403.webp"}],"src":"/media/optimized/detail-rectangle-2-f347deb587e6-1403.webp","srcSet":"/media/optimized/detail-rectangle-2-f347deb587e6-320.webp 320w, /media/optimized/detail-rectangle-2-f347deb587e6-960.webp 960w, /media/optimized/detail-rectangle-2-f347deb587e6-1403.webp 1403w","avifSrcSet":"","source":"references/ITENS DE SEGURANÇA - RECTANGLE/IRIS DE MAQUINA.png"},{"width":1296,"height":441,"variants":[{"width":320,"webp":"/media/optimized/detail-rectangle-3-88c2fad2de77-320.webp"},{"width":960,"webp":"/media/optimized/detail-rectangle-3-88c2fad2de77-960.webp"},{"width":1296,"webp":"/media/optimized/detail-rectangle-3-88c2fad2de77-1296.webp"}],"src":"/media/optimized/detail-rectangle-3-88c2fad2de77-1296.webp","srcSet":"/media/optimized/detail-rectangle-3-88c2fad2de77-320.webp 320w, /media/optimized/detail-rectangle-3-88c2fad2de77-960.webp 960w, /media/optimized/detail-rectangle-3-88c2fad2de77-1296.webp 1296w","avifSrcSet":"","source":"references/ITENS DE SEGURANÇA - RECTANGLE/MICROTEXTO PERSONALIZADO.png"},{"width":1332,"height":508,"variants":[{"width":320,"webp":"/media/optimized/detail-rectangle-4-8156a3a4b4f5-320.webp"},{"width":960,"webp":"/media/optimized/detail-rectangle-4-8156a3a4b4f5-960.webp"},{"width":1332,"webp":"/media/optimized/detail-rectangle-4-8156a3a4b4f5-1332.webp"}],"src":"/media/optimized/detail-rectangle-4-8156a3a4b4f5-1332.webp","srcSet":"/media/optimized/detail-rectangle-4-8156a3a4b4f5-320.webp 320w, /media/optimized/detail-rectangle-4-8156a3a4b4f5-960.webp 960w, /media/optimized/detail-rectangle-4-8156a3a4b4f5-1332.webp 1332w","avifSrcSet":"","source":"references/ITENS DE SEGURANÇA - RECTANGLE/IMPRESSAO IRIDESCENTE.png"},{"width":895,"height":855,"variants":[{"width":320,"webp":"/media/optimized/detail-rectangle-5-f7280f10c3ab-320.webp"},{"width":895,"webp":"/media/optimized/detail-rectangle-5-f7280f10c3ab-895.webp"}],"src":"/media/optimized/detail-rectangle-5-f7280f10c3ab-895.webp","srcSet":"/media/optimized/detail-rectangle-5-f7280f10c3ab-320.webp 320w, /media/optimized/detail-rectangle-5-f7280f10c3ab-895.webp 895w","avifSrcSet":"","source":"references/ITENS DE SEGURANÇA - RECTANGLE/DESMETALIZAÇÃO SOBE TARJA HOLOGRAFICA COM NANO NUMERAÇÃO.png"},{"width":191,"height":873,"variants":[{"width":191,"webp":"/media/optimized/detail-rectangle-6-d0951ebec576-191.webp"}],"src":"/media/optimized/detail-rectangle-6-d0951ebec576-191.webp","srcSet":"/media/optimized/detail-rectangle-6-d0951ebec576-191.webp 191w","avifSrcSet":"","source":"references/ITENS DE SEGURANÇA - RECTANGLE/NUMERACAO MICRO PERFURADA.png"},{"width":4198,"height":1244,"variants":[{"width":800,"webp":"/media/optimized/seal-rectangle-uv-7127f2eb1386-800.webp"},{"width":1200,"webp":"/media/optimized/seal-rectangle-uv-7127f2eb1386-1200.webp"},{"width":1600,"webp":"/media/optimized/seal-rectangle-uv-7127f2eb1386-1600.webp"},{"width":2400,"webp":"/media/optimized/seal-rectangle-uv-7127f2eb1386-2400.webp"}],"src":"/media/optimized/seal-rectangle-uv-7127f2eb1386-2400.webp","srcSet":"/media/optimized/seal-rectangle-uv-7127f2eb1386-800.webp 800w, /media/optimized/seal-rectangle-uv-7127f2eb1386-1200.webp 1200w, /media/optimized/seal-rectangle-uv-7127f2eb1386-1600.webp 1600w, /media/optimized/seal-rectangle-uv-7127f2eb1386-2400.webp 2400w","avifSrcSet":"","source":"original-stamp"},{"width":691,"height":691,"variants":[{"width":320,"webp":"/media/optimized/detail-rectangle-8-e5ec859a182c-320.webp"},{"width":691,"webp":"/media/optimized/detail-rectangle-8-e5ec859a182c-691.webp"}],"src":"/media/optimized/detail-rectangle-8-e5ec859a182c-691.webp","srcSet":"/media/optimized/detail-rectangle-8-e5ec859a182c-320.webp 320w, /media/optimized/detail-rectangle-8-e5ec859a182c-691.webp 691w","avifSrcSet":"","source":"references/ITENS DE SEGURANÇA - RECTANGLE/QR CODE.png"}]},"film":{"desktop":"/media/optimized/film-final-e2e05377611b-1920.mp4","mobile":"/media/optimized/film-final-e2e05377611b-960.mp4","poster":"/media/optimized/leaf-611e0ac079b2-960.webp","duration":"01:02"}};
+/* Generated from the original reference files. */
+const LT_ASSETS = {"photos":{"leaf":{"desktop":{"width":1672,"height":941,"variants":[{"width":960,"avif":"/media/optimized/leaf-611e0ac079b2-960.avif","webp":"/media/optimized/leaf-611e0ac079b2-960.webp"},{"width":1440,"avif":"/media/optimized/leaf-611e0ac079b2-1440.avif","webp":"/media/optimized/leaf-611e0ac079b2-1440.webp"},{"width":1672,"avif":"/media/optimized/leaf-611e0ac079b2-1672.avif","webp":"/media/optimized/leaf-611e0ac079b2-1672.webp"}],"src":"/media/optimized/leaf-611e0ac079b2-1672.webp","srcSet":"/media/optimized/leaf-611e0ac079b2-960.webp 960w, /media/optimized/leaf-611e0ac079b2-1440.webp 1440w, /media/optimized/leaf-611e0ac079b2-1672.webp 1672w","avifSrcSet":"/media/optimized/leaf-611e0ac079b2-960.avif 960w, /media/optimized/leaf-611e0ac079b2-1440.avif 1440w, /media/optimized/leaf-611e0ac079b2-1672.avif 1672w"},"mobile":{"width":529,"height":941,"variants":[{"width":320,"avif":"/media/optimized/leaf-portrait-56b0a944e7f8-320.avif","webp":"/media/optimized/leaf-portrait-56b0a944e7f8-320.webp"},{"width":480,"avif":"/media/optimized/leaf-portrait-56b0a944e7f8-480.avif","webp":"/media/optimized/leaf-portrait-56b0a944e7f8-480.webp"},{"width":529,"avif":"/media/optimized/leaf-portrait-56b0a944e7f8-529.avif","webp":"/media/optimized/leaf-portrait-56b0a944e7f8-529.webp"}],"src":"/media/optimized/leaf-portrait-56b0a944e7f8-529.webp","srcSet":"/media/optimized/leaf-portrait-56b0a944e7f8-320.webp 320w, /media/optimized/leaf-portrait-56b0a944e7f8-480.webp 480w, /media/optimized/leaf-portrait-56b0a944e7f8-529.webp 529w","avifSrcSet":"/media/optimized/leaf-portrait-56b0a944e7f8-320.avif 320w, /media/optimized/leaf-portrait-56b0a944e7f8-480.avif 480w, /media/optimized/leaf-portrait-56b0a944e7f8-529.avif 529w"},"heroMobile":{"width":529,"height":941,"variants":[{"width":320,"avif":"/media/optimized/leaf-hero-portrait-b2787f3c9cfc-320.avif","webp":"/media/optimized/leaf-hero-portrait-b2787f3c9cfc-320.webp"},{"width":480,"avif":"/media/optimized/leaf-hero-portrait-b2787f3c9cfc-480.avif","webp":"/media/optimized/leaf-hero-portrait-b2787f3c9cfc-480.webp"},{"width":529,"avif":"/media/optimized/leaf-hero-portrait-b2787f3c9cfc-529.avif","webp":"/media/optimized/leaf-hero-portrait-b2787f3c9cfc-529.webp"}],"src":"/media/optimized/leaf-hero-portrait-b2787f3c9cfc-529.webp","srcSet":"/media/optimized/leaf-hero-portrait-b2787f3c9cfc-320.webp 320w, /media/optimized/leaf-hero-portrait-b2787f3c9cfc-480.webp 480w, /media/optimized/leaf-hero-portrait-b2787f3c9cfc-529.webp 529w","avifSrcSet":"/media/optimized/leaf-hero-portrait-b2787f3c9cfc-320.avif 320w, /media/optimized/leaf-hero-portrait-b2787f3c9cfc-480.avif 480w, /media/optimized/leaf-hero-portrait-b2787f3c9cfc-529.avif 529w"}},"dew":{"desktop":{"width":1672,"height":941,"variants":[{"width":960,"avif":"/media/optimized/dew-05ff2b685a93-960.avif","webp":"/media/optimized/dew-05ff2b685a93-960.webp"},{"width":1440,"avif":"/media/optimized/dew-05ff2b685a93-1440.avif","webp":"/media/optimized/dew-05ff2b685a93-1440.webp"},{"width":1672,"avif":"/media/optimized/dew-05ff2b685a93-1672.avif","webp":"/media/optimized/dew-05ff2b685a93-1672.webp"}],"src":"/media/optimized/dew-05ff2b685a93-1672.webp","srcSet":"/media/optimized/dew-05ff2b685a93-960.webp 960w, /media/optimized/dew-05ff2b685a93-1440.webp 1440w, /media/optimized/dew-05ff2b685a93-1672.webp 1672w","avifSrcSet":"/media/optimized/dew-05ff2b685a93-960.avif 960w, /media/optimized/dew-05ff2b685a93-1440.avif 1440w, /media/optimized/dew-05ff2b685a93-1672.avif 1672w"},"mobile":{"width":529,"height":941,"variants":[{"width":320,"avif":"/media/optimized/dew-portrait-8c2bbb1d76c7-320.avif","webp":"/media/optimized/dew-portrait-8c2bbb1d76c7-320.webp"},{"width":480,"avif":"/media/optimized/dew-portrait-8c2bbb1d76c7-480.avif","webp":"/media/optimized/dew-portrait-8c2bbb1d76c7-480.webp"},{"width":529,"avif":"/media/optimized/dew-portrait-8c2bbb1d76c7-529.avif","webp":"/media/optimized/dew-portrait-8c2bbb1d76c7-529.webp"}],"src":"/media/optimized/dew-portrait-8c2bbb1d76c7-529.webp","srcSet":"/media/optimized/dew-portrait-8c2bbb1d76c7-320.webp 320w, /media/optimized/dew-portrait-8c2bbb1d76c7-480.webp 480w, /media/optimized/dew-portrait-8c2bbb1d76c7-529.webp 529w","avifSrcSet":"/media/optimized/dew-portrait-8c2bbb1d76c7-320.avif 320w, /media/optimized/dew-portrait-8c2bbb1d76c7-480.avif 480w, /media/optimized/dew-portrait-8c2bbb1d76c7-529.avif 529w"},"closingMobile":{"width":529,"height":941,"variants":[{"width":320,"avif":"/media/optimized/dew-closing-portrait-b9cda708bcdc-320.avif","webp":"/media/optimized/dew-closing-portrait-b9cda708bcdc-320.webp"},{"width":480,"avif":"/media/optimized/dew-closing-portrait-b9cda708bcdc-480.avif","webp":"/media/optimized/dew-closing-portrait-b9cda708bcdc-480.webp"},{"width":529,"avif":"/media/optimized/dew-closing-portrait-b9cda708bcdc-529.avif","webp":"/media/optimized/dew-closing-portrait-b9cda708bcdc-529.webp"}],"src":"/media/optimized/dew-closing-portrait-b9cda708bcdc-529.webp","srcSet":"/media/optimized/dew-closing-portrait-b9cda708bcdc-320.webp 320w, /media/optimized/dew-closing-portrait-b9cda708bcdc-480.webp 480w, /media/optimized/dew-closing-portrait-b9cda708bcdc-529.webp 529w","avifSrcSet":"/media/optimized/dew-closing-portrait-b9cda708bcdc-320.avif 320w, /media/optimized/dew-closing-portrait-b9cda708bcdc-480.avif 480w, /media/optimized/dew-closing-portrait-b9cda708bcdc-529.avif 529w"}},"matter":{"desktop":{"width":1672,"height":941,"variants":[{"width":960,"avif":"/media/optimized/matter-cae92e55435f-960.avif","webp":"/media/optimized/matter-cae92e55435f-960.webp"},{"width":1440,"avif":"/media/optimized/matter-cae92e55435f-1440.avif","webp":"/media/optimized/matter-cae92e55435f-1440.webp"},{"width":1672,"avif":"/media/optimized/matter-cae92e55435f-1672.avif","webp":"/media/optimized/matter-cae92e55435f-1672.webp"}],"src":"/media/optimized/matter-cae92e55435f-1672.webp","srcSet":"/media/optimized/matter-cae92e55435f-960.webp 960w, /media/optimized/matter-cae92e55435f-1440.webp 1440w, /media/optimized/matter-cae92e55435f-1672.webp 1672w","avifSrcSet":"/media/optimized/matter-cae92e55435f-960.avif 960w, /media/optimized/matter-cae92e55435f-1440.avif 1440w, /media/optimized/matter-cae92e55435f-1672.avif 1672w"},"mobile":{"width":529,"height":941,"variants":[{"width":320,"avif":"/media/optimized/matter-portrait-5a6f1f5c48b3-320.avif","webp":"/media/optimized/matter-portrait-5a6f1f5c48b3-320.webp"},{"width":480,"avif":"/media/optimized/matter-portrait-5a6f1f5c48b3-480.avif","webp":"/media/optimized/matter-portrait-5a6f1f5c48b3-480.webp"},{"width":529,"avif":"/media/optimized/matter-portrait-5a6f1f5c48b3-529.avif","webp":"/media/optimized/matter-portrait-5a6f1f5c48b3-529.webp"}],"src":"/media/optimized/matter-portrait-5a6f1f5c48b3-529.webp","srcSet":"/media/optimized/matter-portrait-5a6f1f5c48b3-320.webp 320w, /media/optimized/matter-portrait-5a6f1f5c48b3-480.webp 480w, /media/optimized/matter-portrait-5a6f1f5c48b3-529.webp 529w","avifSrcSet":"/media/optimized/matter-portrait-5a6f1f5c48b3-320.avif 320w, /media/optimized/matter-portrait-5a6f1f5c48b3-480.avif 480w, /media/optimized/matter-portrait-5a6f1f5c48b3-529.avif 529w"}}},"seals":{"circle":{"width":4180,"height":4180,"variants":[{"width":480,"webp":"/media/optimized/seal-circle-6e9ea450e4de-480.webp"},{"width":800,"webp":"/media/optimized/seal-circle-6e9ea450e4de-800.webp"},{"width":1200,"webp":"/media/optimized/seal-circle-6e9ea450e4de-1200.webp"},{"width":1600,"webp":"/media/optimized/seal-circle-6e9ea450e4de-1600.webp"}],"src":"/media/optimized/seal-circle-6e9ea450e4de-1600.webp","srcSet":"/media/optimized/seal-circle-6e9ea450e4de-480.webp 480w, /media/optimized/seal-circle-6e9ea450e4de-800.webp 800w, /media/optimized/seal-circle-6e9ea450e4de-1200.webp 1200w, /media/optimized/seal-circle-6e9ea450e4de-1600.webp 1600w","avifSrcSet":""},"circle-uv":{"width":4180,"height":4180,"variants":[{"width":480,"webp":"/media/optimized/seal-circle-uv-352884c82ce1-480.webp"},{"width":800,"webp":"/media/optimized/seal-circle-uv-352884c82ce1-800.webp"},{"width":1200,"webp":"/media/optimized/seal-circle-uv-352884c82ce1-1200.webp"},{"width":1600,"webp":"/media/optimized/seal-circle-uv-352884c82ce1-1600.webp"}],"src":"/media/optimized/seal-circle-uv-352884c82ce1-1600.webp","srcSet":"/media/optimized/seal-circle-uv-352884c82ce1-480.webp 480w, /media/optimized/seal-circle-uv-352884c82ce1-800.webp 800w, /media/optimized/seal-circle-uv-352884c82ce1-1200.webp 1200w, /media/optimized/seal-circle-uv-352884c82ce1-1600.webp 1600w","avifSrcSet":""},"rectangle":{"width":4198,"height":1244,"variants":[{"width":800,"webp":"/media/optimized/seal-rectangle-4f740a938f13-800.webp"},{"width":1200,"webp":"/media/optimized/seal-rectangle-4f740a938f13-1200.webp"},{"width":1600,"webp":"/media/optimized/seal-rectangle-4f740a938f13-1600.webp"},{"width":2400,"webp":"/media/optimized/seal-rectangle-4f740a938f13-2400.webp"}],"src":"/media/optimized/seal-rectangle-4f740a938f13-2400.webp","srcSet":"/media/optimized/seal-rectangle-4f740a938f13-800.webp 800w, /media/optimized/seal-rectangle-4f740a938f13-1200.webp 1200w, /media/optimized/seal-rectangle-4f740a938f13-1600.webp 1600w, /media/optimized/seal-rectangle-4f740a938f13-2400.webp 2400w","avifSrcSet":""},"rectangle-uv":{"width":4198,"height":1244,"variants":[{"width":800,"webp":"/media/optimized/seal-rectangle-uv-7127f2eb1386-800.webp"},{"width":1200,"webp":"/media/optimized/seal-rectangle-uv-7127f2eb1386-1200.webp"},{"width":1600,"webp":"/media/optimized/seal-rectangle-uv-7127f2eb1386-1600.webp"},{"width":2400,"webp":"/media/optimized/seal-rectangle-uv-7127f2eb1386-2400.webp"}],"src":"/media/optimized/seal-rectangle-uv-7127f2eb1386-2400.webp","srcSet":"/media/optimized/seal-rectangle-uv-7127f2eb1386-800.webp 800w, /media/optimized/seal-rectangle-uv-7127f2eb1386-1200.webp 1200w, /media/optimized/seal-rectangle-uv-7127f2eb1386-1600.webp 1600w, /media/optimized/seal-rectangle-uv-7127f2eb1386-2400.webp 2400w","avifSrcSet":""}},"details":{"circle":[{"width":719,"height":375,"variants":[{"width":320,"webp":"/media/optimized/detail-circle-0-a0c482e7453b-320.webp"},{"width":719,"webp":"/media/optimized/detail-circle-0-a0c482e7453b-719.webp"}],"src":"/media/optimized/detail-circle-0-a0c482e7453b-719.webp","srcSet":"/media/optimized/detail-circle-0-a0c482e7453b-320.webp 320w, /media/optimized/detail-circle-0-a0c482e7453b-719.webp 719w","avifSrcSet":"","source":"references/ITENS DE SEGURANÇA - CIRCLE/HOLOGRAFIA.png"},{"width":1029,"height":522,"variants":[{"width":320,"webp":"/media/optimized/detail-circle-1-77f58e3a13b8-320.webp"},{"width":960,"webp":"/media/optimized/detail-circle-1-77f58e3a13b8-960.webp"},{"width":1029,"webp":"/media/optimized/detail-circle-1-77f58e3a13b8-1029.webp"}],"src":"/media/optimized/detail-circle-1-77f58e3a13b8-1029.webp","srcSet":"/media/optimized/detail-circle-1-77f58e3a13b8-320.webp 320w, /media/optimized/detail-circle-1-77f58e3a13b8-960.webp 960w, /media/optimized/detail-circle-1-77f58e3a13b8-1029.webp 1029w","avifSrcSet":"","source":"references/ITENS DE SEGURANÇA - CIRCLE/CALCOGRAFIA TALHO DOCE.png"},{"width":1318,"height":506,"variants":[{"width":320,"webp":"/media/optimized/detail-circle-2-8e1e34a5d9f3-320.webp"},{"width":960,"webp":"/media/optimized/detail-circle-2-8e1e34a5d9f3-960.webp"},{"width":1318,"webp":"/media/optimized/detail-circle-2-8e1e34a5d9f3-1318.webp"}],"src":"/media/optimized/detail-circle-2-8e1e34a5d9f3-1318.webp","srcSet":"/media/optimized/detail-circle-2-8e1e34a5d9f3-320.webp 320w, /media/optimized/detail-circle-2-8e1e34a5d9f3-960.webp 960w, /media/optimized/detail-circle-2-8e1e34a5d9f3-1318.webp 1318w","avifSrcSet":"","source":"references/ITENS DE SEGURANÇA - CIRCLE/IRIS DE MAQUINA.png"},{"width":1296,"height":441,"variants":[{"width":320,"webp":"/media/optimized/detail-circle-3-88c2fad2de77-320.webp"},{"width":960,"webp":"/media/optimized/detail-circle-3-88c2fad2de77-960.webp"},{"width":1296,"webp":"/media/optimized/detail-circle-3-88c2fad2de77-1296.webp"}],"src":"/media/optimized/detail-circle-3-88c2fad2de77-1296.webp","srcSet":"/media/optimized/detail-circle-3-88c2fad2de77-320.webp 320w, /media/optimized/detail-circle-3-88c2fad2de77-960.webp 960w, /media/optimized/detail-circle-3-88c2fad2de77-1296.webp 1296w","avifSrcSet":"","source":"references/ITENS DE SEGURANÇA - CIRCLE/MICROTEXTO PERSONALIZADO.png"},{"width":1422,"height":341,"variants":[{"width":320,"webp":"/media/optimized/detail-circle-4-e1007fc16c5f-320.webp"},{"width":960,"webp":"/media/optimized/detail-circle-4-e1007fc16c5f-960.webp"},{"width":1422,"webp":"/media/optimized/detail-circle-4-e1007fc16c5f-1422.webp"}],"src":"/media/optimized/detail-circle-4-e1007fc16c5f-1422.webp","srcSet":"/media/optimized/detail-circle-4-e1007fc16c5f-320.webp 320w, /media/optimized/detail-circle-4-e1007fc16c5f-960.webp 960w, /media/optimized/detail-circle-4-e1007fc16c5f-1422.webp 1422w","avifSrcSet":"","source":"references/ITENS DE SEGURANÇA - CIRCLE/IMPRESSAO IRIDESCENTE OPTICAMENTE VARIAVEL.png"},{"width":652,"height":706,"variants":[{"width":320,"webp":"/media/optimized/detail-circle-5-94a95bd1bf04-320.webp"},{"width":652,"webp":"/media/optimized/detail-circle-5-94a95bd1bf04-652.webp"}],"src":"/media/optimized/detail-circle-5-94a95bd1bf04-652.webp","srcSet":"/media/optimized/detail-circle-5-94a95bd1bf04-320.webp 320w, /media/optimized/detail-circle-5-94a95bd1bf04-652.webp 652w","avifSrcSet":"","source":"references/ITENS DE SEGURANÇA - CIRCLE/desmetalização-novo.png"},{"width":1261,"height":334,"variants":[{"width":320,"webp":"/media/optimized/detail-circle-6-8cc2d0dd9fd6-320.webp"},{"width":960,"webp":"/media/optimized/detail-circle-6-8cc2d0dd9fd6-960.webp"},{"width":1261,"webp":"/media/optimized/detail-circle-6-8cc2d0dd9fd6-1261.webp"}],"src":"/media/optimized/detail-circle-6-8cc2d0dd9fd6-1261.webp","srcSet":"/media/optimized/detail-circle-6-8cc2d0dd9fd6-320.webp 320w, /media/optimized/detail-circle-6-8cc2d0dd9fd6-960.webp 960w, /media/optimized/detail-circle-6-8cc2d0dd9fd6-1261.webp 1261w","avifSrcSet":"","source":"references/ITENS DE SEGURANÇA - CIRCLE/NUMERACAO MICRO PERFURADA.png"},{"width":4180,"height":4180,"variants":[{"width":480,"webp":"/media/optimized/seal-circle-uv-352884c82ce1-480.webp"},{"width":800,"webp":"/media/optimized/seal-circle-uv-352884c82ce1-800.webp"},{"width":1200,"webp":"/media/optimized/seal-circle-uv-352884c82ce1-1200.webp"},{"width":1600,"webp":"/media/optimized/seal-circle-uv-352884c82ce1-1600.webp"}],"src":"/media/optimized/seal-circle-uv-352884c82ce1-1600.webp","srcSet":"/media/optimized/seal-circle-uv-352884c82ce1-480.webp 480w, /media/optimized/seal-circle-uv-352884c82ce1-800.webp 800w, /media/optimized/seal-circle-uv-352884c82ce1-1200.webp 1200w, /media/optimized/seal-circle-uv-352884c82ce1-1600.webp 1600w","avifSrcSet":"","source":"original-stamp"},{"width":583,"height":561,"variants":[{"width":320,"webp":"/media/optimized/detail-circle-8-56ca0b7af516-320.webp"},{"width":583,"webp":"/media/optimized/detail-circle-8-56ca0b7af516-583.webp"}],"src":"/media/optimized/detail-circle-8-56ca0b7af516-583.webp","srcSet":"/media/optimized/detail-circle-8-56ca0b7af516-320.webp 320w, /media/optimized/detail-circle-8-56ca0b7af516-583.webp 583w","avifSrcSet":"","source":"references/ITENS DE SEGURANÇA - CIRCLE/QR CODE.png"},{"width":3024,"height":3673,"variants":[{"width":320,"webp":"/media/optimized/detail-substrate-35e95b73d321-320.webp"},{"width":960,"webp":"/media/optimized/detail-substrate-35e95b73d321-960.webp"},{"width":1600,"webp":"/media/optimized/detail-substrate-35e95b73d321-1600.webp"}],"src":"/media/optimized/detail-substrate-35e95b73d321-1600.webp","srcSet":"/media/optimized/detail-substrate-35e95b73d321-320.webp 320w, /media/optimized/detail-substrate-35e95b73d321-960.webp 960w, /media/optimized/detail-substrate-35e95b73d321-1600.webp 1600w","avifSrcSet":"","source":"references/ITENS DE SEGURANÇA - CIRCLE/substrato-de-seguranca.png"}],"rectangle":[{"width":719,"height":375,"variants":[{"width":320,"webp":"/media/optimized/detail-rectangle-0-a0c482e7453b-320.webp"},{"width":719,"webp":"/media/optimized/detail-rectangle-0-a0c482e7453b-719.webp"}],"src":"/media/optimized/detail-rectangle-0-a0c482e7453b-719.webp","srcSet":"/media/optimized/detail-rectangle-0-a0c482e7453b-320.webp 320w, /media/optimized/detail-rectangle-0-a0c482e7453b-719.webp 719w","avifSrcSet":"","source":"references/ITENS DE SEGURANÇA - RECTANGLE/HOLOGRAFIA.png"},{"width":1062,"height":886,"variants":[{"width":320,"webp":"/media/optimized/detail-rectangle-1-6db4a7190e6f-320.webp"},{"width":960,"webp":"/media/optimized/detail-rectangle-1-6db4a7190e6f-960.webp"},{"width":1062,"webp":"/media/optimized/detail-rectangle-1-6db4a7190e6f-1062.webp"}],"src":"/media/optimized/detail-rectangle-1-6db4a7190e6f-1062.webp","srcSet":"/media/optimized/detail-rectangle-1-6db4a7190e6f-320.webp 320w, /media/optimized/detail-rectangle-1-6db4a7190e6f-960.webp 960w, /media/optimized/detail-rectangle-1-6db4a7190e6f-1062.webp 1062w","avifSrcSet":"","source":"references/ITENS DE SEGURANÇA - RECTANGLE/IMPRESSAO CALCOGRAFICA TALHO DOCE.png"},{"width":1403,"height":376,"variants":[{"width":320,"webp":"/media/optimized/detail-rectangle-2-f347deb587e6-320.webp"},{"width":960,"webp":"/media/optimized/detail-rectangle-2-f347deb587e6-960.webp"},{"width":1403,"webp":"/media/optimized/detail-rectangle-2-f347deb587e6-1403.webp"}],"src":"/media/optimized/detail-rectangle-2-f347deb587e6-1403.webp","srcSet":"/media/optimized/detail-rectangle-2-f347deb587e6-320.webp 320w, /media/optimized/detail-rectangle-2-f347deb587e6-960.webp 960w, /media/optimized/detail-rectangle-2-f347deb587e6-1403.webp 1403w","avifSrcSet":"","source":"references/ITENS DE SEGURANÇA - RECTANGLE/IRIS DE MAQUINA.png"},{"width":1296,"height":441,"variants":[{"width":320,"webp":"/media/optimized/detail-rectangle-3-88c2fad2de77-320.webp"},{"width":960,"webp":"/media/optimized/detail-rectangle-3-88c2fad2de77-960.webp"},{"width":1296,"webp":"/media/optimized/detail-rectangle-3-88c2fad2de77-1296.webp"}],"src":"/media/optimized/detail-rectangle-3-88c2fad2de77-1296.webp","srcSet":"/media/optimized/detail-rectangle-3-88c2fad2de77-320.webp 320w, /media/optimized/detail-rectangle-3-88c2fad2de77-960.webp 960w, /media/optimized/detail-rectangle-3-88c2fad2de77-1296.webp 1296w","avifSrcSet":"","source":"references/ITENS DE SEGURANÇA - RECTANGLE/MICROTEXTO PERSONALIZADO.png"},{"width":1332,"height":508,"variants":[{"width":320,"webp":"/media/optimized/detail-rectangle-4-8156a3a4b4f5-320.webp"},{"width":960,"webp":"/media/optimized/detail-rectangle-4-8156a3a4b4f5-960.webp"},{"width":1332,"webp":"/media/optimized/detail-rectangle-4-8156a3a4b4f5-1332.webp"}],"src":"/media/optimized/detail-rectangle-4-8156a3a4b4f5-1332.webp","srcSet":"/media/optimized/detail-rectangle-4-8156a3a4b4f5-320.webp 320w, /media/optimized/detail-rectangle-4-8156a3a4b4f5-960.webp 960w, /media/optimized/detail-rectangle-4-8156a3a4b4f5-1332.webp 1332w","avifSrcSet":"","source":"references/ITENS DE SEGURANÇA - RECTANGLE/IMPRESSAO IRIDESCENTE.png"},{"width":813,"height":711,"variants":[{"width":320,"webp":"/media/optimized/detail-rectangle-5-65f563b3ea87-320.webp"},{"width":813,"webp":"/media/optimized/detail-rectangle-5-65f563b3ea87-813.webp"}],"src":"/media/optimized/detail-rectangle-5-65f563b3ea87-813.webp","srcSet":"/media/optimized/detail-rectangle-5-65f563b3ea87-320.webp 320w, /media/optimized/detail-rectangle-5-65f563b3ea87-813.webp 813w","avifSrcSet":"","source":"references/ITENS DE SEGURANÇA - RECTANGLE/DESMETALIZAÇÃO SOBE TARJA HOLOGRAFICA COM NANO NUMERAÇÃO.png"},{"width":191,"height":873,"variants":[{"width":191,"webp":"/media/optimized/detail-rectangle-6-d0951ebec576-191.webp"}],"src":"/media/optimized/detail-rectangle-6-d0951ebec576-191.webp","srcSet":"/media/optimized/detail-rectangle-6-d0951ebec576-191.webp 191w","avifSrcSet":"","source":"references/ITENS DE SEGURANÇA - RECTANGLE/NUMERACAO MICRO PERFURADA.png"},{"width":4198,"height":1244,"variants":[{"width":800,"webp":"/media/optimized/seal-rectangle-uv-7127f2eb1386-800.webp"},{"width":1200,"webp":"/media/optimized/seal-rectangle-uv-7127f2eb1386-1200.webp"},{"width":1600,"webp":"/media/optimized/seal-rectangle-uv-7127f2eb1386-1600.webp"},{"width":2400,"webp":"/media/optimized/seal-rectangle-uv-7127f2eb1386-2400.webp"}],"src":"/media/optimized/seal-rectangle-uv-7127f2eb1386-2400.webp","srcSet":"/media/optimized/seal-rectangle-uv-7127f2eb1386-800.webp 800w, /media/optimized/seal-rectangle-uv-7127f2eb1386-1200.webp 1200w, /media/optimized/seal-rectangle-uv-7127f2eb1386-1600.webp 1600w, /media/optimized/seal-rectangle-uv-7127f2eb1386-2400.webp 2400w","avifSrcSet":"","source":"original-stamp"},{"width":583,"height":561,"variants":[{"width":320,"webp":"/media/optimized/detail-rectangle-8-56ca0b7af516-320.webp"},{"width":583,"webp":"/media/optimized/detail-rectangle-8-56ca0b7af516-583.webp"}],"src":"/media/optimized/detail-rectangle-8-56ca0b7af516-583.webp","srcSet":"/media/optimized/detail-rectangle-8-56ca0b7af516-320.webp 320w, /media/optimized/detail-rectangle-8-56ca0b7af516-583.webp 583w","avifSrcSet":"","source":"references/ITENS DE SEGURANÇA - RECTANGLE/QR CODE.png"},{"width":3024,"height":3673,"variants":[{"width":320,"webp":"/media/optimized/detail-substrate-35e95b73d321-320.webp"},{"width":960,"webp":"/media/optimized/detail-substrate-35e95b73d321-960.webp"},{"width":1600,"webp":"/media/optimized/detail-substrate-35e95b73d321-1600.webp"}],"src":"/media/optimized/detail-substrate-35e95b73d321-1600.webp","srcSet":"/media/optimized/detail-substrate-35e95b73d321-320.webp 320w, /media/optimized/detail-substrate-35e95b73d321-960.webp 960w, /media/optimized/detail-substrate-35e95b73d321-1600.webp 1600w","avifSrcSet":"","source":"references/ITENS DE SEGURANÇA - CIRCLE/substrato-de-seguranca.png"}]},"film":{"desktop":"/media/optimized/film-final-e2e05377611b-1920.mp4","mobile":"/media/optimized/film-final-e2e05377611b-960.mp4","poster":"/media/optimized/leaf-611e0ac079b2-960.webp","duration":"01:02"}};
 /* LT_MEDIA_DATA_END */
 /* LT_LAYER_DATA_START */
 /* Generated from the registered original canvases. */
-const LT_LAYER_IMAGES = [{"src":"/media/layers-registered/1CAMADA-15f8fce75eda.webp","width":710,"height":710},{"src":"/media/layers-registered/2CAMADA-a93fca59bb6c.webp","width":710,"height":710},{"src":"/media/layers-registered/3CAMADA-2400d484c884.webp","width":710,"height":710},{"src":"/media/layers-registered/4CAMADA-21bff0346d64.webp","width":710,"height":710},{"src":"/media/layers-registered/5CAMADA-2ce15470f4ec.webp","width":710,"height":710},{"src":"/media/layers-registered/6CAMADAPERFURACAO-4cd879ba9e3d.webp","width":710,"height":710},{"src":"/media/layers-registered/7CAMADARASTREABILIDADE-d473e16d5ff1.webp","width":710,"height":710},{"src":"/media/layers-registered/8CAMADAINVISIVEL-2f648b4ff594.webp","width":710,"height":710}];
+const LT_LAYER_IMAGES = [{"src":"/media/layers-registered/1CAMADA-15f8fce75eda.webp","width":710,"height":710},{"src":"/media/layers-registered/2CAMADA-85418d7d772c.webp","width":710,"height":710},{"src":"/media/layers-registered/3CAMADA-2400d484c884.webp","width":710,"height":710},{"src":"/media/layers-registered/4CAMADA-21bff0346d64.webp","width":710,"height":710},{"src":"/media/layers-registered/5CAMADA-2e980195e44a.webp","width":710,"height":710},{"src":"/media/layers-registered/6CAMADAPERFURACAO-4cd879ba9e3d.webp","width":710,"height":710},{"src":"/media/layers-registered/7CAMADARASTREABILIDADE-d473e16d5ff1.webp","width":710,"height":710},{"src":"/media/layers-registered/8CAMADAINVISIVEL-2f648b4ff594.webp","width":710,"height":710}];
+const LT_RECTANGLE_LAYER_IMAGES = [{"src":"/media/layers-rectangle/1CAMADA-8dc3ec32637a.webp","width":1678,"height":497},{"src":"/media/layers-rectangle/2CAMADA-2d1278b9fac9.webp","width":1678,"height":497},{"src":"/media/layers-rectangle/3CAMADA-d4bbb00aa112.webp","width":1678,"height":497},{"src":"/media/layers-rectangle/4CAMADA-aeb1bc3c7433.webp","width":1678,"height":497},{"src":"/media/layers-rectangle/5CAMADA-89985dded43a.webp","width":1678,"height":497},{"src":"/media/layers-rectangle/6CAMADA-864820820593.webp","width":1678,"height":497},{"src":"/media/layers-rectangle/7CAMADA-5e3e985fff8e.webp","width":1678,"height":497},{"src":"/media/layers-rectangle/8CAMADA-87f63c290213.webp","width":1678,"height":497}];
 /* LT_LAYER_DATA_END */
 /* LT_MEDIA_START */
 // Responsive artwork: the browser chooses one file, never both mobile and desktop.
@@ -540,6 +602,44 @@ function LTOrigin({ lang }) {
     ));
 }
 /* LT_ORIGIN_END */
+/* LT_SITE_COPY_START */
+// Centralized bilingual copy. Edit the values here without touching the compiled runtime.
+const LT_SITE_COPY = {
+  pt: {
+    intro: `Da natureza à identidade física.
+Da prova física à rastreabilidade digital.`,
+    originBody: `A natureza não repete identidades. Ela deixa sinais únicos em cada estrutura. No selo, essa mesma lógica se transforma em matéria, precisão e propósito.`,
+    formats: `A mesma identidade.
+Duas expressões.`,
+    lightBody: `Sob luz ultravioleta, uma nova camada da identidade se revela. Explore os elementos invisíveis presentes nos dois formatos do selo.`,
+    traceBody: `A impressão de segurança cria a prova física. A verificação digital conecta essa prova a uma identidade única e rastreável.`,
+    traceRecord: `Cada validação gera um registro com data, hora, localização, produto, número de série, imagem e resultado.`,
+    access: `Acesso direto para consumidores, empresas e fiscalização.`,
+    ending: `Living Trace`,
+    endingEm: `Tax Stamp`,
+    endingSubtitle: `O que é autêntico deixa um rastro vivo.`,
+    footer: `Prova física. Verificação por IA. Rastreabilidade digital.`,
+  },
+  en: {
+    intro: `From nature to physical identity.
+From physical proof to digital traceability.`,
+    originBody: `Nature does not repeat identities. It leaves unique signs in every structure. In the seal, that same logic becomes matter, precision and purpose.`,
+    formats: `One identity.
+Two expressions.`,
+    lightBody: `Under ultraviolet light, another layer of the identity is revealed. Explore the invisible features embedded in both seal formats.`,
+    traceBody: `Security printing creates the physical proof. Digital verification connects that proof to a unique, traceable identity.`,
+    traceRecord: `Each validation creates a record containing date, time, location, product, serial number, image and result.`,
+    access: `Direct access for consumers, companies and inspection teams.`,
+    ending: `Living Trace`,
+    endingEm: `Tax Stamp`,
+    endingSubtitle: `What is authentic leaves a living trace.`,
+    footer: `Physical proof. AI verification. Digital traceability.`,
+  },
+};
+
+Object.assign(qs.pt, LT_SITE_COPY.pt);
+Object.assign(qs.en, LT_SITE_COPY.en);
+/* LT_SITE_COPY_END */
 /* LT_MOTION_START */
 // Scroll-driven optics; no wheel interception, scroll locks, or React frame updates.
 function LT_motion(conditions = {}) {
@@ -551,19 +651,33 @@ function LT_motion(conditions = {}) {
   const leaf = origin.querySelector('.origin-leaf');
   const contour = origin.querySelector('.optical-contour');
   const layers = document.querySelector('.layers-sticky');
-  const seal = document.querySelector('.explosion-visual');
-  const reveal = { radius: 0 };
-  let center = { x: 0, y: 0 };
-  const measureReveal = () => {
-    const frame = layers.getBoundingClientRect();
-    const art = seal.getBoundingClientRect();
-    center = { x: art.x + art.width / 2 - frame.x, y: art.y + art.height / 2 - frame.y };
-  };
-  measureReveal();
-  const revealLayers = () => {
-    // The aperture originates from the actual section-02 stamp, not a duplicate.
-    layers.style.clipPath = `circle(${reveal.radius}vmax at ${center.x}px ${center.y}px)`;
-    layers.style.pointerEvents = reveal.radius < 30 ? 'none' : '';
+  const layersScene = document.querySelector('.layers-scene');
+  const formatScene = document.querySelector('.formats-scene');
+  const formatStage = document.querySelector('.formats-sticky');
+  const revealLayers = progress => {
+    // Fine, staggered print lines resolve across one shared field. No aperture
+    // is tied to a stamp shape: the same optical process joins both formats.
+    const width = layers.offsetWidth;
+    const height = layers.offsetHeight;
+    const bands = mobile ? 80 : 120;
+    const pitch = height / bands;
+    const paths = [];
+    for (let index = 0; index < bands; index++) {
+      const phase = easedPhase(progress * 1.55 - index / bands * .45);
+      const half = (pitch + 2) * phase / 2;
+      const center = (index + .5) * pitch;
+      if (half > 0) paths.push(`M 0 ${center - half} H ${width} V ${center + half} H 0 Z`);
+    }
+    const path = paths.join(' ') || 'M 0 0 H 0 V 0 Z';
+    layers.style.clipPath = progress >= .999 ? 'none' : `path('${path}')`;
+    layers.style.pointerEvents = progress < .7 ? 'none' : '';
+    // Keep the outgoing stamps registered while their sticky section reaches
+    // its boundary; the incoming construction remains at the same coordinates.
+    Si.set(formatStage, { y: Math.max(0, progress * window.innerHeight * .65 - (window.innerHeight - formatStage.offsetHeight)) });
+    formatStage.style.setProperty('--inspection-progress', String(progress));
+    formatStage.style.setProperty('--foil-light', `${110 - progress * 145}%`);
+    Si.set('.format-art img', { opacity: 1 - easedPhase(progress), rotationX: progress * 12, rotationY: 0, rotationZ: -12, scale: 1 });
+    Si.set('.formats-intro, .format-item figcaption', { opacity: 1 - easedPhase(progress / .55) });
   };
   const cx = mobile ? 66 : 70;
   const cy = mobile ? 49 : 46;
@@ -580,14 +694,11 @@ function LT_motion(conditions = {}) {
   // Derive the section mask from scroll progress, including initial deep links
   // and refreshes. Tween callbacks alone can be suppressed on the initial seek.
   const syncMasks = trigger => {
-    const time = trigger.progress * 4;
-    reveal.radius = easedPhase((time - 2.8) / .95) * 150;
+    const time = trigger.progress * 2.85;
     aperture.radius = easedPhase((time - .08) / 1.5) * 115;
     updateAperture();
-    revealLayers();
   };
   updateAperture();
-  revealLayers();
   const journey = Si.timeline({ paused: true });
   journey
     .fromTo('.origin-leaf img', { scale: 1, rotation: 0 }, { scale: 1.32, rotation: -3, ease: 'none', duration: 1.25 }, 0)
@@ -600,20 +711,40 @@ function LT_motion(conditions = {}) {
     .to('.origin-line-0', { opacity: 0, duration: .2 }, .65)
     .fromTo('.origin-line-1', { opacity: 0 }, { opacity: 1, duration: .2 }, .85)
     .to('.origin-line-1', { opacity: 0, duration: .2 }, 1.8)
-    .fromTo('.origin-line-2', { opacity: 0 }, { opacity: 1, duration: .2 }, 2)
-    .to('.origin-matter img', { filter: 'grayscale(1) brightness(1.7)', duration: .65 }, 2.7)
-    .to('.origin-content', { opacity: 0, duration: .4 }, 2.8)
-    .to({}, { duration: 1.2 }, 2.8);
+    .fromTo('.origin-line-2', { opacity: 0 }, { opacity: 1, duration: .2 }, 2);
   // Attach only after the whole journey exists, so an initial deep-link seek
   // sees the final timeline duration and renders the right photographic state.
-  Y.create({ animation: journey, trigger: origin, start: 'top top', end: 'bottom bottom', scrub: .65, invalidateOnRefresh: true, onUpdate: syncMasks, onRefresh: trigger => { measureReveal(); syncMasks(trigger); } });
+  Y.create({ animation: journey, trigger: origin, start: 'top top', end: 'bottom bottom', scrub: .65, invalidateOnRefresh: true, onUpdate: syncMasks, onRefresh: syncMasks });
+
+  // A continuous optical study fills the entire format chapter. The stamps
+  // turn under raking light, settle into registration, then resolve into layers.
+  const formatImages = [...formatStage.querySelectorAll('.format-art img')];
+  const formatStudy = trigger => {
+    if (trigger.progress >= 1) return;
+    const p = trigger.progress;
+    const turn = Math.sin(p * Math.PI);
+    formatImages.forEach((image, index) => Si.set(image, {
+      rotationY: (index ? -1 : 1) * turn * 27,
+      rotationX: turn * 14,
+      rotationZ: -12 + (index ? 1 : -1) * turn * 9,
+      scale: 1 + turn * .09,
+      opacity: 1,
+    }));
+    formatStage.style.setProperty('--foil-light', `${-35 + p * 145}%`);
+  };
+  Y.create({ trigger: formatScene, start: 'top 60%', endTrigger: layersScene, end: 'top top', onUpdate: formatStudy, onRefresh: formatStudy, invalidateOnRefresh: true });
+  const syncLayerReveal = trigger => revealLayers(trigger.progress);
+  Y.create({
+    trigger: layersScene,
+    start: 'top top',
+    end: () => 'top -' + window.innerHeight * .65,
+    onUpdate: syncLayerReveal,
+    onRefresh: syncLayerReveal,
+    invalidateOnRefresh: true,
+  });
 
   Si.fromTo('.hero-media', { scale: 1.03, rotation: 0 }, { scale: 1.33, rotation: -2, ease: 'none', scrollTrigger: { trigger: '.hero', start: 'top top', end: 'bottom top', scrub: .7 } });
   Si.to('.hero-content', { opacity: 0, y: -35, ease: 'none', scrollTrigger: { trigger: '.hero', start: '45% top', end: 'bottom top', scrub: .5 } });
-  if (conditions.desktop) {
-    Si.to('.format-track', { x: () => -Math.max(0, document.querySelector('.format-track').scrollWidth - window.innerWidth), ease: 'none', scrollTrigger: { trigger: '.formats-scene', start: 'top top', end: 'bottom bottom', scrub: .65, invalidateOnRefresh: true } });
-  }
-  Si.fromTo('.format-art', { rotationY: -13, rotationX: 9, scale: .86 }, { rotationY: 0, rotationX: 0, scale: 1, ease: 'none', scrollTrigger: { trigger: '.formats-scene', start: 'top 80%', end: 'top top', scrub: .8 } });
   Si.fromTo('.light-stage', { clipPath: 'circle(8% at 50% 50%)', scale: .9 }, { clipPath: 'circle(145% at 50% 50%)', scale: 1, ease: 'power2.inOut', scrollTrigger: { trigger: '#luz', start: 'top 80%', end: 'top 12%', scrub: .7 } });
   Si.fromTo('.atlas-seal', { clipPath: 'circle(0% at 50% 50%)' }, { clipPath: 'circle(145% at 50% 50%)', ease: 'power2.inOut', scrollTrigger: { trigger: '.security-atlas', start: 'top 85%', end: 'top 15%', scrub: .55 } });
   Si.fromTo('.trace-heading', { opacity: .3, y: 45 }, { opacity: 1, y: 0, scrollTrigger: { trigger: '#rastro', start: 'top 85%', end: 'top 20%', scrub: .6 } });
@@ -621,4 +752,4 @@ function LT_motion(conditions = {}) {
   Si.fromTo('.closing picture', { clipPath: 'circle(12% at 75% 45%)', scale: 1.25 }, { clipPath: 'circle(145% at 75% 45%)', scale: 1, ease: 'power2.inOut', scrollTrigger: { trigger: '.closing', start: 'top 85%', end: 'top 10%', scrub: .7 } });
 }
 /* LT_MOTION_END */
-function lh(){let[e,t]=(0,i.useState)(`pt`),[n,r]=(0,i.useState)(!1),[a,o]=(0,i.useState)(0),[s,c]=(0,i.useState)(!1),[l,u]=(0,i.useState)(!1),d=(0,i.useRef)(null),f=(0,i.useRef)(null),p=(0,i.useRef)(null),m=qs[e];(0,i.useEffect)(()=>{try{let e=localStorage.getItem(`living-trace-language`);(e===`pt`||e===`en`)&&t(e)}catch{}let e=window.matchMedia(`(prefers-reduced-motion: reduce)`).matches,n=navigator.connection;u(!1)},[]),(0,i.useEffect)(()=>{document.documentElement.lang=e===`pt`?`pt-BR`:`en-US`;let t=requestAnimationFrame(()=>Y.refresh());return()=>cancelAnimationFrame(t)},[e]);let h=e=>{t(e);try{localStorage.setItem(`living-trace-language`,e)}catch{}};(0,i.useEffect)(LTPrepareMedia,[]);return(0,i.useEffect)(()=>{let e=f.current;if(!e)return;let t=new IntersectionObserver(([t])=>{t.isIntersecting&&!n&&!document.hidden?e.play().catch(()=>{}):e.pause()},{threshold:.05});t.observe(e);let r=()=>{document.hidden||n?e.pause():e.getBoundingClientRect().bottom>0&&e.play().catch(()=>{})};return document.addEventListener(`visibilitychange`,r),()=>{t.disconnect(),document.removeEventListener(`visibilitychange`,r),e.pause()}},[l,n]),(0,i.useEffect)(()=>{let e=Si.matchMedia();return e.add({motion:`(prefers-reduced-motion: no-preference)`,desktop:`(min-width: 768px)`,reduced:`(prefers-reduced-motion: reduce)`},e=>{if(Y.create({trigger:d.current,start:`top top`,end:`bottom bottom`,onUpdate:e=>{p.current&&(p.current.style.transform=`scaleX(${e.progress})`)}}),oh.forEach((e,t)=>Y.create({trigger:`#${e}`,start:`top 45%`,end:`bottom 45%`,onEnter:()=>o(t),onEnterBack:()=>o(t)})),[`#camadas`,`.security-atlas`,`#rastro`].forEach(e=>Y.create({trigger:e,start:()=>e===`#camadas`?`top -${window.innerHeight-150}`:`top 75px`,end:`bottom 75px`,onToggle:()=>c([`#camadas`,`.security-atlas`,`#rastro`].some(e=>{let t=document.querySelector(e)?.getBoundingClientRect(),n=e===`#camadas`?150-window.innerHeight:75;return t&&t.top<=n&&t.bottom>75}))})),e.conditions?.reduced)return;LT_motion(e.conditions);},d),()=>e.revert()},[]),(0,X.jsxs)(X.Fragment,{children:[(0,X.jsx)(`a`,{className:`skip-link`,href:`#origem`,children:m.skip}),(0,X.jsxs)(`header`,{className:`site-header ${s?`on-light`:``}`,children:[(0,X.jsx)(`a`,{href:`#inicio`,className:`brand-link`,"aria-label":e===`pt`?`PRIMI × BP Security — início`:`PRIMI × BP Security — home`,children:(0,X.jsx)(sh,{})}),(0,X.jsx)(`nav`,{className:`chapter-nav`,"aria-label":e===`pt`?`Capítulos`:`Chapters`,children:oh.map((e,t)=>(0,X.jsx)(`a`,{href:`#${e}`,"aria-current":a===t?`location`:void 0,children:m.nav[t]},e))}),(0,X.jsxs)(`div`,{className:`header-actions`,children:[(0,X.jsxs)(`div`,{className:`language-switch`,"aria-label":e===`pt`?`Idioma`:`Language`,children:[(0,X.jsx)(`button`,{className:e===`pt`?`selected`:``,"aria-label":`Português — PT-BR`,"aria-pressed":e===`pt`,title:`PT-BR`,onClick:()=>h(`pt`),children:(0,X.jsx)(`img`,{src:`/media/br.svg`,alt:``,width:`24`,height:`24`})}),(0,X.jsx)(`button`,{className:e===`en`?`selected`:``,"aria-label":`English — EN-US`,"aria-pressed":e===`en`,title:`EN-US`,onClick:()=>h(`en`),children:(0,X.jsx)(`img`,{src:`/media/us.svg`,alt:``,width:`24`,height:`24`})})]}),(0,X.jsxs)(`button`,{className:`header-film`,"aria-label":m.watch,onClick:()=>r(!0),children:[(0,X.jsx)(`span`,{className:`mini-play`,children:(0,X.jsx)(Jm,{})}),(0,X.jsx)(`span`,{className:`desktop-only`,children:m.watch}),(0,X.jsx)(`span`,{className:`mobile-only`,children:m.film})]})]}),(0,X.jsx)(`div`,{className:`reading-progress`,ref:p})]}),(0,X.jsxs)(`main`,{ref:d,children:[(0,X.jsx)(LTHero,{lang:e,onFilm:()=>r(!0)}),(0,X.jsx)(LTOrigin,{lang:e}),(0,X.jsx)(Qm,{lang:e}),(0,X.jsx)(`section`,{className:`formats-scene`,"aria-labelledby":`formats-title`,children:(0,X.jsxs)(`div`,{className:`formats-sticky`,children:[(0,X.jsxs)(`div`,{className:`formats-intro section-pad`,children:[(0,X.jsx)(`h2`,{id:`formats-title`,children:m.formats}),(0,X.jsx)(`span`,{className:`formats-subtitle`,children:`TAX STAMP`})]}),(0,X.jsxs)(`div`,{className:`format-track`,children:[(0,X.jsxs)(`figure`,{className:`format-item format-circle`,children:[(0,X.jsx)(`div`,{className:`format-art`,children:(0,X.jsx)(rh,{alt:`${m.sealImage} — ${m.circular}`})}),(0,X.jsxs)(`figcaption`,{children:[(0,X.jsx)(`span`,{children:m.circular}),(0,X.jsx)(`span`,{children:m.circleSize})]})]}),(0,X.jsxs)(`figure`,{className:`format-item format-rectangle`,children:[(0,X.jsx)(`div`,{className:`format-art`,children:(0,X.jsx)(rh,{format:`rectangle`,alt:`${m.sealImage} — ${m.rectangular}`})}),(0,X.jsxs)(`figcaption`,{children:[(0,X.jsx)(`span`,{children:m.rectangular}),(0,X.jsx)(`span`,{children:m.rectSize})]})]})]})]})}),(0,X.jsx)(ih,{lang:e}),(0,X.jsx)(ah,{lang:e}),(0,X.jsxs)(`section`,{className:`trace-section section-pad`,id:`rastro`,"aria-labelledby":`trace-title`,children:[(0,X.jsxs)(`p`,{className:`chapter-label`,children:[`04 / `,m.nav[3]]}),(0,X.jsxs)(`h2`,{className:`trace-heading`,id:`trace-title`,children:[m.traceA,(0,X.jsx)(`br`,{}),m.traceB,` `,(0,X.jsx)(`em`,{children:m.traceEm})]}),(0,X.jsx)(`p`,{className:`trace-intro`,children:m.traceBody}),(0,X.jsx)(`ol`,{className:`trace-steps`,children:m.steps.map((e,t)=>(0,X.jsxs)(`li`,{children:[(0,X.jsxs)(`span`,{className:`step-number`,children:[`0`,t+1]}),(0,X.jsx)(`h3`,{children:e.title}),(0,X.jsx)(`p`,{children:e.body})]},t))}),(0,X.jsxs)(`div`,{className:`trace-record`,children:[(0,X.jsx)(`p`,{children:m.traceRecord}),(0,X.jsx)(`p`,{children:m.access})]})]}),(0,X.jsxs)(`section`,{className:`closing section-pad`,children:[(0,X.jsx)(LTPhoto,{name:`dew`,framing:`closing`}),(0,X.jsx)(`div`,{className:`closing-shade`}),(0,X.jsxs)(`div`,{className:`closing-content`,children:[(0,X.jsxs)(`h2`,{children:[m.ending,(0,X.jsx)(`br`,{}),(0,X.jsx)(`em`,{children:m.endingEm})]}),(0,X.jsx)(ch,{label:m.watch,onClick:()=>r(!0),large:!0})]})]}),(0,X.jsxs)(`footer`,{className:`site-footer section-pad`,children:[(0,X.jsxs)(`div`,{className:`footer-top`,children:[(0,X.jsx)(sh,{footer:!0}),(0,X.jsx)(`p`,{children:m.footer})]}),(0,X.jsxs)(`div`,{className:`footer-bottom`,children:[(0,X.jsxs)(`a`,{href:`/media/brochure-${e}.pdf`,target:`_blank`,rel:`noreferrer`,children:[m.brochure,` `,(0,X.jsx)(`span`,{children:`PDF`})]}),(0,X.jsxs)(`span`,{children:[`© `,new Date().getFullYear(),` PRIMI × BP Security`]}),(0,X.jsx)(`a`,{href:`#inicio`,children:m.back})]})]})]}),(0,X.jsx)(`nav`,{className:`mobile-chapters`,"aria-label":e===`pt`?`Navegação por capítulos`:`Chapter navigation`,children:oh.map((e,t)=>(0,X.jsxs)(`a`,{href:`#${e}`,"aria-current":a===t?`location`:void 0,children:[(0,X.jsxs)(`span`,{children:[`0`,t+1]}),m.nav[t]]},e))}),(0,X.jsx)(Xm,{open:n,onOpenChange:r,lang:e})]})}export{lh as default};
+function lh(){let[e,t]=(0,i.useState)(`pt`),[n,r]=(0,i.useState)(!1),[a,o]=(0,i.useState)(0),[s,c]=(0,i.useState)(!1),[l,u]=(0,i.useState)(!1),d=(0,i.useRef)(null),f=(0,i.useRef)(null),p=(0,i.useRef)(null),m=qs[e];(0,i.useEffect)(()=>{try{let e=localStorage.getItem(`living-trace-language`);(e===`pt`||e===`en`)&&t(e)}catch{}let e=window.matchMedia(`(prefers-reduced-motion: reduce)`).matches,n=navigator.connection;u(!1)},[]),(0,i.useEffect)(()=>{document.documentElement.lang=e===`pt`?`pt-BR`:`en-GB`;let t=requestAnimationFrame(()=>Y.refresh());return()=>cancelAnimationFrame(t)},[e]);let h=e=>{t(e);try{localStorage.setItem(`living-trace-language`,e)}catch{}};(0,i.useEffect)(LTPrepareMedia,[]);return(0,i.useEffect)(()=>{let e=f.current;if(!e)return;let t=new IntersectionObserver(([t])=>{t.isIntersecting&&!n&&!document.hidden?e.play().catch(()=>{}):e.pause()},{threshold:.05});t.observe(e);let r=()=>{document.hidden||n?e.pause():e.getBoundingClientRect().bottom>0&&e.play().catch(()=>{})};return document.addEventListener(`visibilitychange`,r),()=>{t.disconnect(),document.removeEventListener(`visibilitychange`,r),e.pause()}},[l,n]),(0,i.useEffect)(()=>{let e=Si.matchMedia();return e.add({motion:`(prefers-reduced-motion: no-preference)`,desktop:`(min-width: 768px)`,reduced:`(prefers-reduced-motion: reduce)`},e=>{if(Y.create({trigger:d.current,start:`top top`,end:`bottom bottom`,onUpdate:e=>{p.current&&(p.current.style.transform=`scaleX(${e.progress})`)}}),oh.forEach((e,t)=>Y.create({trigger:`#${e}`,start:`top 45%`,end:`bottom 45%`,onEnter:()=>o(t),onEnterBack:()=>o(t)})),[`#camadas`,`.security-atlas`,`#rastro`].forEach(e=>Y.create({trigger:e,start:()=>e===`#camadas`?`top -${window.innerHeight*.25}`:`top 75px`,end:`bottom 75px`,onToggle:()=>c([`#camadas`,`.security-atlas`,`#rastro`].some(e=>{let t=document.querySelector(e)?.getBoundingClientRect(),n=e===`#camadas`?-window.innerHeight*.25:75;return t&&t.top<=n&&t.bottom>75}))})),e.conditions?.reduced)return;LT_motion(e.conditions);},d),()=>e.revert()},[]),(0,X.jsxs)(X.Fragment,{children:[(0,X.jsx)(`a`,{className:`skip-link`,href:`#origem`,children:m.skip}),(0,X.jsxs)(`header`,{className:`site-header ${s?`on-light`:``}`,children:[(0,X.jsx)(sh,{}),(0,X.jsx)(`nav`,{className:`chapter-nav`,"aria-label":e===`pt`?`Capítulos`:`Chapters`,children:oh.map((e,t)=>(0,X.jsx)(`a`,{href:`#${e}`,"aria-current":a===t?`location`:void 0,children:m.nav[t]},e))}),(0,X.jsxs)(`div`,{className:`header-actions`,children:[(0,X.jsxs)(`div`,{className:`language-switch`,"aria-label":e===`pt`?`Idioma`:`Language`,children:[(0,X.jsx)(`button`,{className:e===`pt`?`selected`:``,"aria-label":`Português — PT-BR`,"aria-pressed":e===`pt`,title:`PT-BR`,onClick:()=>h(`pt`),children:(0,X.jsx)(`img`,{src:`/media/br.svg`,alt:``,width:`24`,height:`24`})}),(0,X.jsx)(`button`,{className:e===`en`?`selected`:``,"aria-label":`English — EN-GB`,"aria-pressed":e===`en`,title:`EN-GB`,onClick:()=>h(`en`),children:(0,X.jsx)(`img`,{src:`/media/gb.svg`,alt:``,width:`24`,height:`24`})})]}),(0,X.jsxs)(`button`,{className:`header-film`,"aria-label":m.watch,onClick:()=>r(!0),children:[(0,X.jsx)(`span`,{className:`mini-play`,children:(0,X.jsx)(Jm,{})}),(0,X.jsx)(`span`,{className:`desktop-only`,children:m.watch}),(0,X.jsx)(`span`,{className:`mobile-only`,children:m.film})]})]}),(0,X.jsx)(`div`,{className:`reading-progress`,ref:p})]}),(0,X.jsxs)(`main`,{ref:d,children:[(0,X.jsx)(LTHero,{lang:e,onFilm:()=>r(!0)}),(0,X.jsx)(LTOrigin,{lang:e}),(0,X.jsx)(`section`,{className:`formats-scene`,"aria-labelledby":`formats-title`,children:(0,X.jsxs)(`div`,{className:`formats-sticky`,children:[(0,X.jsxs)(`div`,{className:`formats-intro section-pad`,children:[(0,X.jsx)(`h2`,{id:`formats-title`,children:m.formats}),(0,X.jsx)(`span`,{className:`formats-subtitle`,children:`TAX STAMP`})]}),(0,X.jsxs)(`div`,{className:`format-track`,children:[(0,X.jsxs)(`figure`,{className:`format-item format-circle`,children:[(0,X.jsx)(`div`,{className:`format-art`,children:(0,X.jsx)(rh,{alt:`${m.sealImage} — ${m.circular}`})}),(0,X.jsxs)(`figcaption`,{children:[(0,X.jsx)(`span`,{children:m.circular}),(0,X.jsx)(`span`,{children:m.circleSize})]})]}),(0,X.jsxs)(`figure`,{className:`format-item format-rectangle`,children:[(0,X.jsx)(`div`,{className:`format-art`,children:(0,X.jsx)(rh,{format:`rectangle`,alt:`${m.sealImage} — ${m.rectangular}`})}),(0,X.jsxs)(`figcaption`,{children:[(0,X.jsx)(`span`,{children:m.rectangular}),(0,X.jsx)(`span`,{children:m.rectSize})]})]})]})]})}),(0,X.jsx)(Qm,{lang:e}),(0,X.jsx)(ah,{lang:e}),(0,X.jsx)(ih,{lang:e}),(0,X.jsxs)(`section`,{className:`trace-section section-pad`,id:`rastro`,"aria-labelledby":`trace-title`,children:[(0,X.jsxs)(`p`,{className:`chapter-label`,children:[`04 / `,m.nav[3]]}),(0,X.jsxs)(`h2`,{className:`trace-heading`,id:`trace-title`,children:[m.traceA,(0,X.jsx)(`br`,{}),m.traceB,` `,(0,X.jsx)(`em`,{children:m.traceEm})]}),(0,X.jsx)(`p`,{className:`trace-intro`,children:m.traceBody}),(0,X.jsx)(`ol`,{className:`trace-steps`,children:m.steps.map((e,t)=>(0,X.jsxs)(`li`,{children:[(0,X.jsxs)(`span`,{className:`step-number`,children:[`0`,t+1]}),(0,X.jsx)(`h3`,{children:e.title}),(0,X.jsx)(`p`,{children:e.body})]},t))}),(0,X.jsxs)(`div`,{className:`trace-record`,children:[(0,X.jsx)(`p`,{children:m.traceRecord}),(0,X.jsx)(`p`,{children:m.access})]})]}),(0,X.jsxs)(`section`,{className:`closing section-pad`,children:[(0,X.jsx)(LTPhoto,{name:`dew`,framing:`closing`}),(0,X.jsx)(`div`,{className:`closing-shade`}),(0,X.jsxs)(`div`,{className:`closing-content`,children:[(0,X.jsxs)(`h2`,{children:[m.ending,(0,X.jsx)(`br`,{}),(0,X.jsx)(`em`,{children:m.endingEm})]}),(0,X.jsx)(`p`,{className:`closing-subtitle`,children:m.endingSubtitle}),(0,X.jsx)(ch,{label:m.watch,onClick:()=>r(!0),large:!0})]})]}),(0,X.jsxs)(`footer`,{className:`site-footer section-pad`,children:[(0,X.jsxs)(`div`,{className:`footer-top`,children:[(0,X.jsx)(sh,{footer:!0}),(0,X.jsx)(`p`,{children:m.footer})]}),(0,X.jsxs)(`div`,{className:`footer-bottom`,children:[(0,X.jsxs)(`span`,{children:[`© `,new Date().getFullYear(),` PRIMI × BP Security`]}),(0,X.jsx)(`a`,{href:`#inicio`,children:m.back})]})]})]}),(0,X.jsx)(`nav`,{className:`mobile-chapters`,"aria-label":e===`pt`?`Navegação por capítulos`:`Chapter navigation`,children:oh.map((e,t)=>(0,X.jsxs)(`a`,{href:`#${e}`,"aria-current":a===t?`location`:void 0,children:[(0,X.jsxs)(`span`,{children:[`0`,t+1]}),m.nav[t]]},e))}),(0,X.jsx)(Xm,{open:n,onOpenChange:r,lang:e})]})}export{lh as default};

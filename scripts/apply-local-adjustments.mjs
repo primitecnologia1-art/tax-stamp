@@ -43,6 +43,7 @@ const layersSource = await injectComponent('LAYERS', 'layers.js', 'function Qm('
 const securitySource = await injectComponent('SECURITY', 'security.js', 'function ah(', 'Si.registerPlugin(Y);var oh=');
 await injectComponent('FILM', 'film.js', 'function Xm(', 'Si.registerPlugin(Y);var Zm=');
 const sealSource = await injectComponent('SEAL', 'seal.js', 'function rh(', 'function ih(');
+const brandSource = await injectComponent('BRAND', 'brand.js', 'function sh(', 'function ch(');
 
 async function injectSupport(label, file) {
   const source = await readFile(path.join(projectRoot, 'src', file), 'utf8');
@@ -65,6 +66,7 @@ const mediaDataSource = await injectSupport('MEDIA_DATA', 'media-data.js');
 const layerDataSource = await injectSupport('LAYER_DATA', 'layers-data.js');
 const mediaSource = await injectSupport('MEDIA', 'media.js');
 const originSource = await injectSupport('ORIGIN', 'origin.js');
+const siteCopySource = await injectSupport('SITE_COPY', 'site-copy.js');
 await injectSupport('MOTION', 'motion.js');
 const application = bundle.indexOf('function lh(');
 const oldOriginClass = bundle.indexOf('className:`origin-scene`', application);
@@ -95,6 +97,11 @@ if (oldMotion >= 0) {
 }
 bundle = bundle.replace('heroA:`O real deixa`,heroB:`um rastro`', 'heroA:`O que é real`,heroB:`deixa um rastro`');
 bundle = bundle.replaceAll('children:`01:00`', 'children:LT_ASSETS.film.duration');
+bundle = bundle
+  .replaceAll('/media/us.svg', '/media/gb.svg')
+  .replaceAll('English — EN-US', 'English — EN-GB')
+  .replaceAll('title:`EN-US`', 'title:`EN-GB`')
+  .replace('e===`pt`?`pt-BR`:`en-US`', 'e===`pt`?`pt-BR`:`en-GB`');
 // Only the local React application is needed; no archived server/router bootstrap.
 const applicationStart = bundle.indexOf('function lh(');
 if (!bundle.slice(applicationStart).includes('useEffect)(LTPrepareMedia')) {
@@ -107,6 +114,24 @@ if (closingPictureStart >= 0 && closingPictureEnd > closingPictureStart) {
   bundle = bundle.slice(0, closingPictureStart) + '(0,X.jsx)(LTPhoto,{name:`dew`,framing:`closing`})' + bundle.slice(closingPictureEnd);
 }
 bundle = bundle.replace('(0,X.jsx)(LTPhoto,{name:`dew`})', '(0,X.jsx)(LTPhoto,{name:`dew`,framing:`closing`})');
+
+// The linked company marks are already the full brand control; avoid nested links.
+bundle = bundle.replace(
+  '(0,X.jsx)(`a`,{href:`#inicio`,className:`brand-link`,"aria-label":e===`pt`?`PRIMI × BP Security — início`:`PRIMI × BP Security — home`,children:(0,X.jsx)(sh,{})})',
+  '(0,X.jsx)(sh,{})',
+);
+
+// Closing copy is editable in src/site-copy.js.
+bundle = bundle.replace(
+  '(0,X.jsxs)(`h2`,{children:[m.ending,(0,X.jsx)(`br`,{}),(0,X.jsx)(`em`,{children:m.endingEm})]}),(0,X.jsx)(ch,{label:m.watch',
+  '(0,X.jsxs)(`h2`,{children:[m.ending,(0,X.jsx)(`br`,{}),(0,X.jsx)(`em`,{children:m.endingEm})]}),(0,X.jsx)(`p`,{className:`closing-subtitle`,children:m.endingSubtitle}),(0,X.jsx)(ch,{label:m.watch',
+);
+
+// No technical-material download is part of this edition.
+bundle = bundle.replace(
+  '(0,X.jsxs)(`a`,{href:`/media/brochure-${e}.pdf`,target:`_blank`,rel:`noreferrer`,children:[m.brochure,` `,(0,X.jsx)(`span`,{children:`PDF`})]}),',
+  '',
+);
 
 bundle = bundle.replace('`Rastro`', '`Rastreabilidade`').replace('`Trace`', '`Traceability`');
 bundle = bundle.replace('nav:[`Origem`,`Camadas`,`Luz`,`Rastro`]', 'nav:[`Origem`,`Camadas`,`Luz`,`Rastreabilidade`]');
@@ -129,6 +154,9 @@ bundle = bundle.replace(
 );
 bundle = bundle.replace('e===`#camadas`?`top -${window.innerHeight-75}`', 'e===`#camadas`?`top -${window.innerHeight-150}`')
   .replace('n=e===`#camadas`?75-window.innerHeight:75', 'n=e===`#camadas`?150-window.innerHeight:75');
+// The shared optical reveal now reaches the header earlier in its shorter run.
+bundle = bundle.replace('e===`#camadas`?`top -${window.innerHeight-150}`', 'e===`#camadas`?`top -${window.innerHeight*.25}`')
+  .replace('n=e===`#camadas`?150-window.innerHeight:75', 'n=e===`#camadas`?-window.innerHeight*.25:75');
 
 // Inverte a direção da explosão: a camada 01 passa para a base da pilha.
 bundle = bundle
@@ -157,6 +185,21 @@ if (controlsStart >= 0 && controlsEnd > controlsStart) {
   bundle = bundle.slice(0, controlsStart) + bundle.slice(controlsEnd);
 }
 
+// Narrative order: origin → formats → layers → security → UV → traceability.
+const orderMain = bundle.indexOf(mainStart, bundle.indexOf('function lh('));
+const layersCall = bundle.indexOf('(0,X.jsx)(Qm,{lang:e})', orderMain);
+const formatsCall = bundle.indexOf('(0,X.jsx)(`section`,{className:`formats-scene`', orderMain);
+const lightCall = bundle.indexOf('(0,X.jsx)(ih,{lang:e})', orderMain);
+const securityCall = bundle.indexOf('(0,X.jsx)(ah,{lang:e})', orderMain);
+const traceCall = bundle.indexOf('(0,X.jsxs)(`section`,{className:`trace-section', orderMain);
+if (layersCall < formatsCall && formatsCall < lightCall && lightCall < securityCall && securityCall < traceCall) {
+  const layersSegment = bundle.slice(layersCall, formatsCall);
+  const formatsSegment = bundle.slice(formatsCall, lightCall);
+  const lightSegment = bundle.slice(lightCall, securityCall);
+  const securitySegment = bundle.slice(securityCall, traceCall);
+  bundle = bundle.slice(0, layersCall) + formatsSegment + layersSegment + securitySegment + lightSegment + bundle.slice(traceCall);
+}
+
 await writeFile(bundlePath, bundle, "utf8");
 
 let html = await readFile(htmlPath, "utf8");
@@ -182,6 +225,17 @@ for (const asset of ['leaf', 'dew', 'matter']) {
 html = html.replace(/>Rastro</g, '>Rastreabilidade<').replace(/>04 Rastro</g, '>04 Rastreabilidade<');
 html = html.replace(/<h1\b[^>]*id="hero-title"[\s\S]*?<\/h1>/,
   '<h1 id="hero-title" aria-label="O que é real deixa um rastro vivo."><span>O que é real</span><span>deixa um rastro<!-- --> <em>vivo.</em></span></h1>');
+html = html
+  .replaceAll('/media/us.svg', '/media/gb.svg')
+  .replaceAll('English — EN-US', 'English — EN-GB')
+  .replaceAll('title="EN-US"', 'title="EN-GB"')
+  .replaceAll('Sob luz ultravioleta, uma outra identidade se revela. Explore a impressão invisível nos dois formatos do selo.', 'Sob luz ultravioleta, uma nova camada da identidade se revela. Explore os elementos invisíveis presentes nos dois formatos do selo.')
+  .replaceAll('A impressão de segurança cria a prova física. A verificação digital conecta essa prova à identidade registrada do produto.', 'A impressão de segurança cria a prova física. A verificação digital conecta essa prova a uma identidade única e rastreável.')
+  .replaceAll('Cada validação registra data, hora, localização, produto, número de série, imagem e resultado.', 'Cada validação gera um registro com data, hora, localização, produto, número de série, imagem e resultado.')
+  .replaceAll('Acesso gratuito para consumidores e fiscais.', 'Acesso direto para consumidores, empresas e fiscalização.')
+  .replaceAll('Prova física. Rastreabilidade digital.', 'Prova física. Verificação por IA. Rastreabilidade digital.')
+  .replace(/<h2>O real deixa um<br\/><em>rastro vivo\.<\/em><\/h2>/, '<h2>Living Trace<br/><em>Tax Stamp</em></h2><p class="closing-subtitle">O que é autêntico deixa um rastro vivo.</p>')
+  .replace(/<a href="\/media\/brochure-pt\.pdf"[\s\S]*?<\/a>/, '');
 
 // Prerender these same sources so hydration sees the updated eight-layer atlas.
 const qsStart = bundle.indexOf('var qs=') + 'var qs='.length;
@@ -199,22 +253,57 @@ const sandbox = {
   nh: renderTab,
 };
 vm.createContext(sandbox);
-vm.runInContext(`const qs=${bundle.slice(qsStart, qsEnd)};const Ys=${bundle.slice(ysStart, ysEnd)};\n${mediaDataSource}\n${layerDataSource}\n${mediaSource}\n${sealSource}\n${layersSource}\n${securitySource}\n${originSource}`, sandbox);
+vm.runInContext(`const qs=${bundle.slice(qsStart, qsEnd)};const Ys=${bundle.slice(ysStart, ysEnd)};\n${siteCopySource}\n${mediaDataSource}\n${layerDataSource}\n${mediaSource}\n${sealSource}\n${brandSource}\n${layersSource}\n${securitySource}\n${originSource}`, sandbox);
 // Match the archived runtime's React version, including text/array boundaries.
 const layersHtml = renderToString(element(sandbox.Qm, { lang: 'pt' }));
 const securityHtml = renderToString(element(sandbox.ah, { lang: 'pt' }));
 const originHtml = renderToString(element(sandbox.LTOrigin, { lang: 'pt' }));
 const heroHtml = renderToString(element(sandbox.LTHero, { lang: 'pt' }));
-function replaceSection(startToken, nextToken, output) {
+const brandHeaderHtml = renderToString(element(sandbox.sh));
+const brandFooterHtml = renderToString(element(sandbox.sh, { footer: true }));
+function sectionRange(startToken) {
   const start = startToken instanceof RegExp ? html.search(startToken) : html.indexOf(startToken);
-  const end = html.indexOf(nextToken, start);
-  if (start < 0 || end <= start) throw new Error('HTML section boundary not found: ' + startToken);
+  if (start < 0) throw new Error('HTML section start not found: ' + startToken);
+  const tags = /<\/?section\b[^>]*>/g;
+  tags.lastIndex = start;
+  let depth = 0;
+  let match;
+  while ((match = tags.exec(html))) {
+    depth += match[0].startsWith('</') ? -1 : 1;
+    if (depth === 0) return [start, tags.lastIndex];
+  }
+  throw new Error('HTML section end not found: ' + startToken);
+}
+function replaceSection(startToken, output) {
+  const [start, end] = sectionRange(startToken);
   html = html.slice(0, start) + output + html.slice(end);
 }
-replaceSection('<section class="layers-scene', '<section class="formats-scene', layersHtml);
-replaceSection('<section class="hero"', '<section class="origin-scene', heroHtml);
-replaceSection(/<section\b[^>]*class="origin-scene/, '<section class="layers-scene', originHtml);
-replaceSection('<section class="security-explorer', '<section class="trace-section', securityHtml);
+replaceSection('<section class="layers-scene', layersHtml);
+replaceSection('<section class="hero"', heroHtml);
+replaceSection(/<section\b[^>]*class="origin-scene/, originHtml);
+replaceSection('<section class="security-explorer', securityHtml);
+html = html
+  .replace(/<div class="brand (?:brand-header)?" aria-label="PRIMI e BP Security">[\s\S]*?<\/div>/, brandHeaderHtml)
+  .replace(/<div class="brand brand-footer" aria-label="PRIMI e BP Security">[\s\S]*?<\/div>/, brandFooterHtml);
+
+// Match the server-rendered section order to the client runtime.
+const orderedTokens = [
+  '<section class="hero"',
+  /<section\b[^>]*class="origin-scene/,
+  '<section class="formats-scene',
+  '<section class="layers-scene',
+  '<section class="security-explorer',
+  '<section class="light-lab',
+  '<section class="trace-section',
+  '<section class="closing section-pad',
+];
+const orderedSections = orderedTokens.map(token => {
+  const [start, end] = sectionRange(token);
+  return { start, end, markup: html.slice(start, end) };
+});
+const narrativeStart = Math.min(...orderedSections.map(section => section.start));
+const narrativeEnd = Math.max(...orderedSections.map(section => section.end));
+html = html.slice(0, narrativeStart) + orderedSections.map(section => section.markup).join('') + html.slice(narrativeEnd);
 
 // Keep the same complete SSR markup, hydrating with the lean local entry point.
 html = html.replace(/<script\b[^>]*>[\s\S]*?<\/script>/g, script =>

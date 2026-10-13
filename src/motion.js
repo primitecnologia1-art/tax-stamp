@@ -8,19 +8,33 @@ function LT_motion(conditions = {}) {
   const leaf = origin.querySelector('.origin-leaf');
   const contour = origin.querySelector('.optical-contour');
   const layers = document.querySelector('.layers-sticky');
-  const seal = document.querySelector('.explosion-visual');
-  const reveal = { radius: 0 };
-  let center = { x: 0, y: 0 };
-  const measureReveal = () => {
-    const frame = layers.getBoundingClientRect();
-    const art = seal.getBoundingClientRect();
-    center = { x: art.x + art.width / 2 - frame.x, y: art.y + art.height / 2 - frame.y };
-  };
-  measureReveal();
-  const revealLayers = () => {
-    // The aperture originates from the actual section-02 stamp, not a duplicate.
-    layers.style.clipPath = `circle(${reveal.radius}vmax at ${center.x}px ${center.y}px)`;
-    layers.style.pointerEvents = reveal.radius < 30 ? 'none' : '';
+  const layersScene = document.querySelector('.layers-scene');
+  const formatScene = document.querySelector('.formats-scene');
+  const formatStage = document.querySelector('.formats-sticky');
+  const revealLayers = progress => {
+    // Fine, staggered print lines resolve across one shared field. No aperture
+    // is tied to a stamp shape: the same optical process joins both formats.
+    const width = layers.offsetWidth;
+    const height = layers.offsetHeight;
+    const bands = mobile ? 80 : 120;
+    const pitch = height / bands;
+    const paths = [];
+    for (let index = 0; index < bands; index++) {
+      const phase = easedPhase(progress * 1.55 - index / bands * .45);
+      const half = (pitch + 2) * phase / 2;
+      const center = (index + .5) * pitch;
+      if (half > 0) paths.push(`M 0 ${center - half} H ${width} V ${center + half} H 0 Z`);
+    }
+    const path = paths.join(' ') || 'M 0 0 H 0 V 0 Z';
+    layers.style.clipPath = progress >= .999 ? 'none' : `path('${path}')`;
+    layers.style.pointerEvents = progress < .7 ? 'none' : '';
+    // Keep the outgoing stamps registered while their sticky section reaches
+    // its boundary; the incoming construction remains at the same coordinates.
+    Si.set(formatStage, { y: Math.max(0, progress * window.innerHeight * .65 - (window.innerHeight - formatStage.offsetHeight)) });
+    formatStage.style.setProperty('--inspection-progress', String(progress));
+    formatStage.style.setProperty('--foil-light', `${110 - progress * 145}%`);
+    Si.set('.format-art img', { opacity: 1 - easedPhase(progress), rotationX: progress * 12, rotationY: 0, rotationZ: -12, scale: 1 });
+    Si.set('.formats-intro, .format-item figcaption', { opacity: 1 - easedPhase(progress / .55) });
   };
   const cx = mobile ? 66 : 70;
   const cy = mobile ? 49 : 46;
@@ -37,14 +51,11 @@ function LT_motion(conditions = {}) {
   // Derive the section mask from scroll progress, including initial deep links
   // and refreshes. Tween callbacks alone can be suppressed on the initial seek.
   const syncMasks = trigger => {
-    const time = trigger.progress * 4;
-    reveal.radius = easedPhase((time - 2.8) / .95) * 150;
+    const time = trigger.progress * 2.85;
     aperture.radius = easedPhase((time - .08) / 1.5) * 115;
     updateAperture();
-    revealLayers();
   };
   updateAperture();
-  revealLayers();
   const journey = Si.timeline({ paused: true });
   journey
     .fromTo('.origin-leaf img', { scale: 1, rotation: 0 }, { scale: 1.32, rotation: -3, ease: 'none', duration: 1.25 }, 0)
@@ -57,20 +68,40 @@ function LT_motion(conditions = {}) {
     .to('.origin-line-0', { opacity: 0, duration: .2 }, .65)
     .fromTo('.origin-line-1', { opacity: 0 }, { opacity: 1, duration: .2 }, .85)
     .to('.origin-line-1', { opacity: 0, duration: .2 }, 1.8)
-    .fromTo('.origin-line-2', { opacity: 0 }, { opacity: 1, duration: .2 }, 2)
-    .to('.origin-matter img', { filter: 'grayscale(1) brightness(1.7)', duration: .65 }, 2.7)
-    .to('.origin-content', { opacity: 0, duration: .4 }, 2.8)
-    .to({}, { duration: 1.2 }, 2.8);
+    .fromTo('.origin-line-2', { opacity: 0 }, { opacity: 1, duration: .2 }, 2);
   // Attach only after the whole journey exists, so an initial deep-link seek
   // sees the final timeline duration and renders the right photographic state.
-  Y.create({ animation: journey, trigger: origin, start: 'top top', end: 'bottom bottom', scrub: .65, invalidateOnRefresh: true, onUpdate: syncMasks, onRefresh: trigger => { measureReveal(); syncMasks(trigger); } });
+  Y.create({ animation: journey, trigger: origin, start: 'top top', end: 'bottom bottom', scrub: .65, invalidateOnRefresh: true, onUpdate: syncMasks, onRefresh: syncMasks });
+
+  // A continuous optical study fills the entire format chapter. The stamps
+  // turn under raking light, settle into registration, then resolve into layers.
+  const formatImages = [...formatStage.querySelectorAll('.format-art img')];
+  const formatStudy = trigger => {
+    if (trigger.progress >= 1) return;
+    const p = trigger.progress;
+    const turn = Math.sin(p * Math.PI);
+    formatImages.forEach((image, index) => Si.set(image, {
+      rotationY: (index ? -1 : 1) * turn * 27,
+      rotationX: turn * 14,
+      rotationZ: -12 + (index ? 1 : -1) * turn * 9,
+      scale: 1 + turn * .09,
+      opacity: 1,
+    }));
+    formatStage.style.setProperty('--foil-light', `${-35 + p * 145}%`);
+  };
+  Y.create({ trigger: formatScene, start: 'top 60%', endTrigger: layersScene, end: 'top top', onUpdate: formatStudy, onRefresh: formatStudy, invalidateOnRefresh: true });
+  const syncLayerReveal = trigger => revealLayers(trigger.progress);
+  Y.create({
+    trigger: layersScene,
+    start: 'top top',
+    end: () => 'top -' + window.innerHeight * .65,
+    onUpdate: syncLayerReveal,
+    onRefresh: syncLayerReveal,
+    invalidateOnRefresh: true,
+  });
 
   Si.fromTo('.hero-media', { scale: 1.03, rotation: 0 }, { scale: 1.33, rotation: -2, ease: 'none', scrollTrigger: { trigger: '.hero', start: 'top top', end: 'bottom top', scrub: .7 } });
   Si.to('.hero-content', { opacity: 0, y: -35, ease: 'none', scrollTrigger: { trigger: '.hero', start: '45% top', end: 'bottom top', scrub: .5 } });
-  if (conditions.desktop) {
-    Si.to('.format-track', { x: () => -Math.max(0, document.querySelector('.format-track').scrollWidth - window.innerWidth), ease: 'none', scrollTrigger: { trigger: '.formats-scene', start: 'top top', end: 'bottom bottom', scrub: .65, invalidateOnRefresh: true } });
-  }
-  Si.fromTo('.format-art', { rotationY: -13, rotationX: 9, scale: .86 }, { rotationY: 0, rotationX: 0, scale: 1, ease: 'none', scrollTrigger: { trigger: '.formats-scene', start: 'top 80%', end: 'top top', scrub: .8 } });
   Si.fromTo('.light-stage', { clipPath: 'circle(8% at 50% 50%)', scale: .9 }, { clipPath: 'circle(145% at 50% 50%)', scale: 1, ease: 'power2.inOut', scrollTrigger: { trigger: '#luz', start: 'top 80%', end: 'top 12%', scrub: .7 } });
   Si.fromTo('.atlas-seal', { clipPath: 'circle(0% at 50% 50%)' }, { clipPath: 'circle(145% at 50% 50%)', ease: 'power2.inOut', scrollTrigger: { trigger: '.security-atlas', start: 'top 85%', end: 'top 15%', scrub: .55 } });
   Si.fromTo('.trace-heading', { opacity: .3, y: 45 }, { opacity: 1, y: 0, scrollTrigger: { trigger: '#rastro', start: 'top 85%', end: 'top 20%', scrub: .6 } });

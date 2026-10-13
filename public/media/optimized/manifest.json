@@ -206,23 +206,23 @@
       "variants": [
         {
           "width": 480,
-          "webp": "/media/optimized/seal-circle-bfc307f5afd2-480.webp"
+          "webp": "/media/optimized/seal-circle-6e9ea450e4de-480.webp"
         },
         {
           "width": 800,
-          "webp": "/media/optimized/seal-circle-bfc307f5afd2-800.webp"
+          "webp": "/media/optimized/seal-circle-6e9ea450e4de-800.webp"
         },
         {
           "width": 1200,
-          "webp": "/media/optimized/seal-circle-bfc307f5afd2-1200.webp"
+          "webp": "/media/optimized/seal-circle-6e9ea450e4de-1200.webp"
         },
         {
           "width": 1600,
-          "webp": "/media/optimized/seal-circle-bfc307f5afd2-1600.webp"
+          "webp": "/media/optimized/seal-circle-6e9ea450e4de-1600.webp"
         }
       ],
-      "src": "/media/optimized/seal-circle-bfc307f5afd2-1600.webp",
-      "srcSet": "/media/optimized/seal-circle-bfc307f5afd2-480.webp 480w, /media/optimized/seal-circle-bfc307f5afd2-800.webp 800w, /media/optimized/seal-circle-bfc307f5afd2-1200.webp 1200w, /media/optimized/seal-circle-bfc307f5afd2-1600.webp 1600w",
+      "src": "/media/optimized/seal-circle-6e9ea450e4de-1600.webp",
+      "srcSet": "/media/optimized/seal-circle-6e9ea450e4de-480.webp 480w, /media/optimized/seal-circle-6e9ea450e4de-800.webp 800w, /media/optimized/seal-circle-6e9ea450e4de-1200.webp 1200w, /media/optimized/seal-circle-6e9ea450e4de-1600.webp 1600w",
       "avifSrcSet": ""
     },
     "circle-uv": {
@@ -256,23 +256,23 @@
       "variants": [
         {
           "width": 800,
-          "webp": "/media/optimized/seal-rectangle-f886ae42aad6-800.webp"
+          "webp": "/media/optimized/seal-rectangle-4f740a938f13-800.webp"
         },
         {
           "width": 1200,
-          "webp": "/media/optimized/seal-rectangle-f886ae42aad6-1200.webp"
+          "webp": "/media/optimized/seal-rectangle-4f740a938f13-1200.webp"
         },
         {
           "width": 1600,
-          "webp": "/media/optimized/seal-rectangle-f886ae42aad6-1600.webp"
+          "webp": "/media/optimized/seal-rectangle-4f740a938f13-1600.webp"
         },
         {
           "width": 2400,
-          "webp": "/media/optimized/seal-rectangle-f886ae42aad6-2400.webp"
+          "webp": "/media/optimized/seal-rectangle-4f740a938f13-2400.webp"
         }
       ],
-      "src": "/media/optimized/seal-rectangle-f886ae42aad6-2400.webp",
-      "srcSet": "/media/optimized/seal-rectangle-f886ae42aad6-800.webp 800w, /media/optimized/seal-rectangle-f886ae42aad6-1200.webp 1200w, /media/optimized/seal-rectangle-f886ae42aad6-1600.webp 1600w, /media/optimized/seal-rectangle-f886ae42aad6-2400.webp 2400w",
+      "src": "/media/optimized/seal-rectangle-4f740a938f13-2400.webp",
+      "srcSet": "/media/optimized/seal-rectangle-4f740a938f13-800.webp 800w, /media/optimized/seal-rectangle-4f740a938f13-1200.webp 1200w, /media/optimized/seal-rectangle-4f740a938f13-1600.webp 1600w, /media/optimized/seal-rectangle-4f740a938f13-2400.webp 2400w",
       "avifSrcSet": ""
     },
     "rectangle-uv": {
@@ -410,22 +410,22 @@
         "source": "references/ITENS DE SEGURANÇA - CIRCLE/IMPRESSAO IRIDESCENTE OPTICAMENTE VARIAVEL.png"
       },
       {
-        "width": 342,
-        "height": 362,
+        "width": 652,
+        "height": 706,
         "variants": [
           {
             "width": 320,
-            "webp": "/media/optimized/detail-circle-5-601c6e39e0ce-320.webp"
+            "webp": "/media/optimized/detail-circle-5-94a95bd1bf04-320.webp"
           },
           {
-            "width": 342,
-            "webp": "/media/optimized/detail-circle-5-601c6e39e0ce-342.webp"
+            "width": 652,
+            "webp": "/media/optimized/detail-circle-5-94a95bd1bf04-652.webp"
           }
         ],
-        "src": "/media/optimized/detail-circle-5-601c6e39e0ce-342.webp",
-        "srcSet": "/media/optimized/detail-circle-5-601c6e39e0ce-320.webp 320w, /media/optimized/detail-circle-5-601c6e39e0ce-342.webp 342w",
+        "src": "/media/optimized/detail-circle-5-94a95bd1bf04-652.webp",
+        "srcSet": "/media/optimized/detail-circle-5-94a95bd1bf04-320.webp 320w, /media/optimized/detail-circle-5-94a95bd1bf04-652.webp 652w",
         "avifSrcSet": "",
-        "source": "references/ITENS DE SEGURANÇA - CIRCLE/desmetalização.png"
+        "source": "references/ITENS DE SEGURANÇA - CIRCLE/desmetalização-novo.png"
       },
       {
         "width": 1261,
@@ -476,22 +476,44 @@
         "source": "original-stamp"
       },
       {
-        "width": 691,
-        "height": 691,
+        "width": 583,
+        "height": 561,
         "variants": [
           {
             "width": 320,
-            "webp": "/media/optimized/detail-circle-8-e5ec859a182c-320.webp"
+            "webp": "/media/optimized/detail-circle-8-56ca0b7af516-320.webp"
           },
           {
-            "width": 691,
-            "webp": "/media/optimized/detail-circle-8-e5ec859a182c-691.webp"
+            "width": 583,
+            "webp": "/media/optimized/detail-circle-8-56ca0b7af516-583.webp"
           }
         ],
-        "src": "/media/optimized/detail-circle-8-e5ec859a182c-691.webp",
-        "srcSet": "/media/optimized/detail-circle-8-e5ec859a182c-320.webp 320w, /media/optimized/detail-circle-8-e5ec859a182c-691.webp 691w",
+        "src": "/media/optimized/detail-circle-8-56ca0b7af516-583.webp",
+        "srcSet": "/media/optimized/detail-circle-8-56ca0b7af516-320.webp 320w, /media/optimized/detail-circle-8-56ca0b7af516-583.webp 583w",
         "avifSrcSet": "",
         "source": "references/ITENS DE SEGURANÇA - CIRCLE/QR CODE.png"
+      },
+      {
+        "width": 3024,
+        "height": 3673,
+        "variants": [
+          {
+            "width": 320,
+            "webp": "/media/optimized/detail-substrate-35e95b73d321-320.webp"
+          },
+          {
+            "width": 960,
+            "webp": "/media/optimized/detail-substrate-35e95b73d321-960.webp"
+          },
+          {
+            "width": 1600,
+            "webp": "/media/optimized/detail-substrate-35e95b73d321-1600.webp"
+          }
+        ],
+        "src": "/media/optimized/detail-substrate-35e95b73d321-1600.webp",
+        "srcSet": "/media/optimized/detail-substrate-35e95b73d321-320.webp 320w, /media/optimized/detail-substrate-35e95b73d321-960.webp 960w, /media/optimized/detail-substrate-35e95b73d321-1600.webp 1600w",
+        "avifSrcSet": "",
+        "source": "references/ITENS DE SEGURANÇA - CIRCLE/substrato-de-seguranca.png"
       }
     ],
     "rectangle": [
@@ -602,20 +624,20 @@
         "source": "references/ITENS DE SEGURANÇA - RECTANGLE/IMPRESSAO IRIDESCENTE.png"
       },
       {
-        "width": 895,
-        "height": 855,
+        "width": 813,
+        "height": 711,
         "variants": [
           {
             "width": 320,
-            "webp": "/media/optimized/detail-rectangle-5-f7280f10c3ab-320.webp"
+            "webp": "/media/optimized/detail-rectangle-5-65f563b3ea87-320.webp"
           },
           {
-            "width": 895,
-            "webp": "/media/optimized/detail-rectangle-5-f7280f10c3ab-895.webp"
+            "width": 813,
+            "webp": "/media/optimized/detail-rectangle-5-65f563b3ea87-813.webp"
           }
         ],
-        "src": "/media/optimized/detail-rectangle-5-f7280f10c3ab-895.webp",
-        "srcSet": "/media/optimized/detail-rectangle-5-f7280f10c3ab-320.webp 320w, /media/optimized/detail-rectangle-5-f7280f10c3ab-895.webp 895w",
+        "src": "/media/optimized/detail-rectangle-5-65f563b3ea87-813.webp",
+        "srcSet": "/media/optimized/detail-rectangle-5-65f563b3ea87-320.webp 320w, /media/optimized/detail-rectangle-5-65f563b3ea87-813.webp 813w",
         "avifSrcSet": "",
         "source": "references/ITENS DE SEGURANÇA - RECTANGLE/DESMETALIZAÇÃO SOBE TARJA HOLOGRAFICA COM NANO NUMERAÇÃO.png"
       },
@@ -660,22 +682,44 @@
         "source": "original-stamp"
       },
       {
-        "width": 691,
-        "height": 691,
+        "width": 583,
+        "height": 561,
         "variants": [
           {
             "width": 320,
-            "webp": "/media/optimized/detail-rectangle-8-e5ec859a182c-320.webp"
+            "webp": "/media/optimized/detail-rectangle-8-56ca0b7af516-320.webp"
           },
           {
-            "width": 691,
-            "webp": "/media/optimized/detail-rectangle-8-e5ec859a182c-691.webp"
+            "width": 583,
+            "webp": "/media/optimized/detail-rectangle-8-56ca0b7af516-583.webp"
           }
         ],
-        "src": "/media/optimized/detail-rectangle-8-e5ec859a182c-691.webp",
-        "srcSet": "/media/optimized/detail-rectangle-8-e5ec859a182c-320.webp 320w, /media/optimized/detail-rectangle-8-e5ec859a182c-691.webp 691w",
+        "src": "/media/optimized/detail-rectangle-8-56ca0b7af516-583.webp",
+        "srcSet": "/media/optimized/detail-rectangle-8-56ca0b7af516-320.webp 320w, /media/optimized/detail-rectangle-8-56ca0b7af516-583.webp 583w",
         "avifSrcSet": "",
         "source": "references/ITENS DE SEGURANÇA - RECTANGLE/QR CODE.png"
+      },
+      {
+        "width": 3024,
+        "height": 3673,
+        "variants": [
+          {
+            "width": 320,
+            "webp": "/media/optimized/detail-substrate-35e95b73d321-320.webp"
+          },
+          {
+            "width": 960,
+            "webp": "/media/optimized/detail-substrate-35e95b73d321-960.webp"
+          },
+          {
+            "width": 1600,
+            "webp": "/media/optimized/detail-substrate-35e95b73d321-1600.webp"
+          }
+        ],
+        "src": "/media/optimized/detail-substrate-35e95b73d321-1600.webp",
+        "srcSet": "/media/optimized/detail-substrate-35e95b73d321-320.webp 320w, /media/optimized/detail-substrate-35e95b73d321-960.webp 960w, /media/optimized/detail-substrate-35e95b73d321-1600.webp 1600w",
+        "avifSrcSet": "",
+        "source": "references/ITENS DE SEGURANÇA - CIRCLE/substrato-de-seguranca.png"
       }
     ]
   },
