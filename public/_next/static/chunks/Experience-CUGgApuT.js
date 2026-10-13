@@ -632,7 +632,7 @@ Two expressions.`,
     access: `Direct access for consumers, companies and inspection teams.`,
     ending: `Living Trace`,
     endingEm: `Tax Stamp`,
-    endingSubtitle: `What is authentic leaves a living trace.`,
+    endingSubtitle: `What is real leaves a living trace.`,
     footer: `Physical proof. AI verification. Digital traceability.`,
   },
 };
